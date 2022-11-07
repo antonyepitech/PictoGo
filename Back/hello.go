@@ -17,9 +17,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, p)
 	fmt.Println(w, "so great !")
 }
-func main() {
-	fmt.Println("server started!")
-	http.HandleFunc("/", indexHandler)
-	http.ListenAndServe(":8000", nil)
 
-}
+// func main() {
+// 	fmt.Println("server started!")
+// 	http.HandleFunc("/", indexHandler)
+// 	http.ListenAndServe(":8000", nil)
+
+// }
