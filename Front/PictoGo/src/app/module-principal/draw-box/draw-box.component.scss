@@ -1,0 +1,53 @@
+p {
+  font-family: Lato;
+}
+
+.group{
+  display:flex;
+  flex-direction: row;
+  flex-wrap: warp;
+  justify-content: space-around;
+}
+
+.item {
+  margin:10px;
+
+  position: relative;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.item:hover {
+  transition: ease-in-out 0.3s;
+  transform: translateY(-5px);
+}
+
+.item:hover p{
+  opacity: 1;
+}
+
+.item:hover img{
+  filter: grayscale(0%);
+}
+
+
+img{
+  width:200px;
+  height:200px;
+  filter: grayscale(30%);
+  transition: ease-in-out 0.3s;
+}
+
+p{
+  position: absolute;
+  color:white;
+  opacity: 0;
+  transition: ease-in-out 0.3s;
+}
+
+
+
+/* canvas */
+
+
