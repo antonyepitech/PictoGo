@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -135,4 +136,3 @@ func ServeWs(wsServer *WsServer, w http.ResponseWriter, r *http.Request) {
 
 	wsServer.register <- client
 }
-
