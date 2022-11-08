@@ -3,18 +3,23 @@
 <div id="boxGameScene">
   <div id="player">player</div>
   <div id="drawArea">DrawArea</div>
-  <form *ngIf="formPrincipal" [formGroup]="this.formPrincipal" (submit)="onSubmit()">
-    <div id="chat">
-      chat
+  <div id="chat">
+    <div *ngFor="let message of messages">
+      <p>
+        {{message.message}}
+      </p>
+    </div>
+    <form *ngIf="formPrincipal" [formGroup]="this.formPrincipal" (submit)="onSubmit()">
+
       <input id="textChat" type="text" placeholder="type your message" formControlName="message">
       <div *ngIf="f['message'].touched && f['message'].invalid" class="alert alert-danger">
         <div *ngIf="f['message'].errors && f['message'].errors['minlength']">1 charactères min.</div>
       </div>
-    </div>
-    <!-- SUBMIT -->
-    <div class="d-flex justify-content-center mt-3 mb-4">
-      <button class="btn btn-primary" [disabled]="!formPrincipal.valid" type="submit">Envoyer</button>
-    </div>
-  </form>
 
+      <!-- SUBMIT -->
+      <div class="d-flex justify-content-center mt-3 mb-4">
+        <button class="btn btn-primary" [disabled]="!formPrincipal.valid" type="submit">Envoyer</button>
+      </div>
+    </form>
+  </div>
 </div>

@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
+import {Message} from "@angular/compiler/src/i18n/i18n_ast";
+import {Observable} from "rxjs";
+import {ChatMessage} from "../model/message.model";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
 
-  public data : object = {
-    messages: [],
-    newMessage: ""
-  }
+
+  public messages: ChatMessage[];
 
   private socket: WebSocket;
   // private listener: EventEmitter<any> = new EventEmitter();
@@ -21,6 +22,8 @@ export class ChatService {
     this.socket.onopen = event => {
       console.log("connected ok");
       console.log(event);
+
+      //
     }
   }
 
@@ -31,14 +34,16 @@ export class ChatService {
     }
   }
 
-  getMessageFromWebsocket() {
-    this.socket.onmessage = event => {
-      console.log("message comming");
-      console.log(JSON.parse(event.data));
-    }
+  getMessageFromWebsocket(): Observable<ChatMessage> {
+    return new Observable(observer => {
+      this.socket.onmessage = event => {
+        observer.next(JSON.parse(event.data));
+      }
+    });
   }
 
   sendMessage(message: string) {
+    console.log(message)
     this.socket.send(JSON.stringify({message: message}));
   }
 
