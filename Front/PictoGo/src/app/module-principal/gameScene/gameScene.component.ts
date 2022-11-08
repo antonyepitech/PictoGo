@@ -1,13 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  selector: 'app-gameScene',
+  templateUrl: './gameScene.component.html',
+  styleUrls: ['./gameScene.component.css']
 })
-export class HomeComponent implements OnInit {
+export class GameSceneComponent implements OnInit {
 
   constructor() {
   }
@@ -17,4 +16,3 @@ export class HomeComponent implements OnInit {
   // tslint:disable-next-line:typedef
 
 }
-
