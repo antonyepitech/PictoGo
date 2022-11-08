@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+// import { Injectable } from '@angular/core';
+// import {HttpClient} from "@angular/common/http";
 //import {HeaderService} from "../auth/header.service";
-import {Observable} from "rxjs";
+// import {Observable} from "rxjs";
 //import {Allergen} from "../../model/food/Allergen";
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AllergenService {
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class AllergenService {
 
   /* private url = 'http://localhost:9090/api/allergen';
   constructor(private http: HttpClient, private headerService: HeaderService) {
@@ -35,4 +35,4 @@ export class AllergenService {
   }
 
    */
-}
+// }
