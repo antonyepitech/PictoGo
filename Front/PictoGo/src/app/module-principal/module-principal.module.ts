@@ -6,13 +6,15 @@ import {GameSceneComponent} from "./gameScene/gameScene.component";
 import {HomeComponent} from "./home/home.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { DrawBoxComponent } from './draw-box/draw-box.component';
+import { RoomComponent } from './room/room.component';
 
 
 @NgModule({
   declarations: [
     GameSceneComponent,
     HomeComponent,
-    DrawBoxComponent
+    DrawBoxComponent,
+    RoomComponent
   ],
   imports: [
     CommonModule,

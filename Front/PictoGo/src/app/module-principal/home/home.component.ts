@@ -9,12 +9,15 @@ import { Router } from '@angular/router';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() {
+  constructor(private router : Router) {
+
   }
 
   // tslint:disable-next-line:typedef
   ngOnInit() {}
   // tslint:disable-next-line:typedef
-
+  onClickPlay(){
+    this.router.navigate(['/room']);
+  }
 }
 
