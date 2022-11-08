@@ -5,12 +5,14 @@ import { ModulePrincipalRoutingModule } from './module-principal-routing.module'
 import {GameSceneComponent} from "./gameScene/gameScene.component";
 import {HomeComponent} from "./home/home.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import { DrawBoxComponent } from './draw-box/draw-box.component';
 
 
 @NgModule({
   declarations: [
     GameSceneComponent,
-    HomeComponent
+    HomeComponent,
+    DrawBoxComponent
   ],
   imports: [
     CommonModule,
