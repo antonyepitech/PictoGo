@@ -50,3 +50,4 @@ func (server *WsServer) broadcastToClients(message []byte) {
 		client.send <- message
 	}
 }
+

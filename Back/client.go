@@ -135,3 +135,4 @@ func ServeWs(wsServer *WsServer, w http.ResponseWriter, r *http.Request) {
 
 	wsServer.register <- client
 }
+
