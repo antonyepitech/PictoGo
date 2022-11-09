@@ -85,48 +85,6 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
     this.cx.stroke();
   }
 
-  autoDraw() {
-    const runTimes = 100;
-    for (let i = 0; i < runTimes; i++) {
-      this.excuteAutoDraw();
-    }
-  }
-
-  excuteAutoDraw() {
-    const direction = this.getDirection();
-
-    // @ts-ignore
-    const distance = DistanceConfig[direction];
-    const newLocation = { ...this.currentLocation };
-    newLocation.x = newLocation.x + distance.x;
-    newLocation.y = newLocation.y + distance.y;
-
-    if (this.isNewPath(newLocation)) {
-      console.log(this.currentLocation, newLocation);
-      this.cx.moveTo(this.currentLocation.x, this.currentLocation.y);
-      this.cx.lineTo(newLocation.x, newLocation.y);
-      this.cx.stroke();
-
-      this.currentLocation = newLocation;
-      // @ts-ignore
-      this.locationList.push(newLocation);
-    }
-
-  }
-
-  isNewPath(newLoc: { x: number; y: number }) {
-    const idx = this.locationList.findIndex(
-      // @ts-ignore
-      oldLoc => oldLoc.x === newLoc.x && oldLoc.y == newLoc.y
-    );
-    return idx == -1;
-  }
-
-  getDirection() {
-    const idx = Math.floor(Math.random() * 4);
-    return Direction[idx];
-  }
-
   refresh() {
     this.cx.beginPath();
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);

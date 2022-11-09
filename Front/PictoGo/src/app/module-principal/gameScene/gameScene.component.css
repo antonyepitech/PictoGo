@@ -24,7 +24,7 @@
 }
 
 #chat{
-  width: 100%;
+  width: 90%;
   height: 60%;
   background-color: green;
 }
@@ -36,9 +36,10 @@
 }
 
 #textChat{
-  display: flex;
-  margin-top: 400px;
-  width: 100%;
+  position: absolute;
+  margin-left: 10px;
+  bottom: 150px;
+  width: 200px;
 }
 
 #word{
@@ -48,5 +49,16 @@
   background-color: aliceblue;
   width: 100%;
   text-align: center;
+}
+
+#sendButton{
+  display: flex;
+}
+
+.btn-primary{
+  position: absolute;
+  background-color: red;
+  bottom: 150px;
+  right: 30px;
 }
 
