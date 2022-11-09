@@ -1,11 +1,18 @@
-<div id="gameName">PictoGo</div>
-<div id="word">_ _ _ _ _</div>
+<button id="gameName" (click)="onClickPlay()">PictoGo</button>
+<div id="header">
+  <div id="clock"></div>
+  <p id="time">10:00</p>
+  <p id="word">_ _ _ _ _</p>
+</div>
 <div id="boxGameScene">
-  <div id="player">player</div>
+  <div id="player">
+      <h1 id="players">Players</h1>
+    <app-card-player></app-card-player>
+  </div>
   <app-draw-box id="drawArea"></app-draw-box>
   <div id="chat">
     <div *ngFor="let message of messages">
-      <p>
+      <p id="message">
         {{message.message}}
       </p>
     </div>
@@ -25,3 +32,4 @@
     </form>
   </div>
 </div>
+
