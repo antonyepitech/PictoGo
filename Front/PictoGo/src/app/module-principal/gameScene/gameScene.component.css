@@ -24,9 +24,11 @@
 }
 
 #chat{
-  width: 100%;
-  height: 60%;
+  width: 90%;
+  height: 400px;
+  margin-top: 147px;
   background-color: green;
+  overflow-y: scroll;
 }
 
 #player{
@@ -36,9 +38,10 @@
 }
 
 #textChat{
-  display: flex;
-  margin-top: 400px;
-  width: 100%;
+  position: absolute;
+  margin-left: 10px;
+  bottom: 140px;
+  width: 200px;
 }
 
 #word{
@@ -48,5 +51,16 @@
   background-color: aliceblue;
   width: 100%;
   text-align: center;
+}
+
+#sendButton{
+  display: flex;
+}
+
+.btn-primary{
+  position: absolute;
+  background-color: red;
+  bottom: 140px;
+  right: 30px;
 }
 
