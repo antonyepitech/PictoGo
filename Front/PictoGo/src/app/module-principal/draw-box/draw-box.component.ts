@@ -44,7 +44,7 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
   name = "Angular";
   // @ts-ignore
   cx;
-  canvas = { width: 800, height: 500 };
+  canvas = { width: 810, height: 370 };
   currentLocation = { x: 200, y: 200 };
   //preDirection: string;
 

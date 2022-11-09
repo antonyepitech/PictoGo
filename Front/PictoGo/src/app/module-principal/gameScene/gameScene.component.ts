@@ -3,6 +3,8 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ChatService} from "../../service/chat.service";
 import {ChatMessage} from "../../model/message.model";
 import {User} from "../../model/user.model";
+import {Router} from "@angular/router";
+
 
 @Component({
   selector: 'app-gameScene',
@@ -16,12 +18,16 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   public formPrincipal : FormGroup;
   public messages: ChatMessage[] = [];
 
-  constructor(private fb: FormBuilder, private chatService: ChatService) {
+  constructor(private fb: FormBuilder, private chatService: ChatService, private router: Router) {
     this.currentUser = new User();
     this.currentUser.name = "toto";
     this.formPrincipal = this.fb.group({});
     this.chatService.connectUser(this.currentUser);
     this.chatService.connectToWebSocketMessage();
+  }
+
+  onClickPlay(){
+    this.router.navigate(['']);
   }
 
   ngOnInit() {
