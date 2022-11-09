@@ -40,7 +40,7 @@
 #textChat{
   position: absolute;
   margin-left: 10px;
-  bottom: 150px;
+  bottom: 140px;
   width: 200px;
 }
 
@@ -60,7 +60,7 @@
 .btn-primary{
   position: absolute;
   background-color: red;
-  bottom: 150px;
+  bottom: 140px;
   right: 30px;
 }
 
