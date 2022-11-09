@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {Observable} from "rxjs";
-import {ChatMessage} from "../model/message.model";
-import {User} from "../model/user.model";
+import { Observable } from "rxjs";
+import { ChatMessage } from "../model/message.model";
+import { User } from "../model/user.model";
 
 @Injectable({
   providedIn: 'root'
@@ -9,16 +9,19 @@ import {User} from "../model/user.model";
 export class ChatService {
 
 
+
   public messages: ChatMessage[];
 
   private socket: WebSocket;
   // private listener: EventEmitter<any> = new EventEmitter();
+  private user : User;
 
   public constructor() {
   }
 
   connectUser(user: User) {
-    this.socket = new WebSocket("ws://localhost:8080/ws"+ "?name=" + user.name);
+    this.socket = new WebSocket("ws://localhost:8080/ws" + "?name=" + user.name);
+    this.user=user;
   }
 
   connectToWebSocketMessage() {
@@ -37,20 +40,28 @@ export class ChatService {
     }
   }
 
-  getMessageFromWebsocket(): Observable<ChatMessage> {
+  getMessageFromWebsocket(): Observable<any> {
     return new Observable(observer => {
       this.socket.onmessage = event => {
-        console.log(event);
         observer.next(JSON.parse(event.data));
       }
     });
   }
 
   sendMessage(message: string) {
-    console.log(message)
-    this.socket.send(JSON.stringify({message: message}));
+    this.socket.send(JSON.stringify({ message: message }));
   }
 
+  sendDraw(offsetX: number, offsetY: number) {
+    let message = {
+      userId : this.user.id,
+      type : "draw",
+      offsetX: offsetX,
+      offsetY: offsetY
+    }
+    this.socket.send(JSON.stringify(message));
+
+  }
   public close() {
     console.log("close ok");
     this.socket.close();

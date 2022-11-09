@@ -8,6 +8,9 @@ import {
 } from "@angular/core";
 import { fromEvent, combineLatest } from "rxjs";
 import { filter, tap, concatMap, mergeMap, takeUntil } from "rxjs/operators";
+import { ChatService } from "src/app/service/chat.service";
+import { User } from "../../model/user.model";
+
 
 export enum Direction {
   up,
@@ -50,17 +53,19 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
 
   locationList = [];
 
-  @ViewChild("myCanvas", { static: false }) myCanvas : ElementRef | undefined;
+  @ViewChild("myCanvas", { static: false }) myCanvas: ElementRef | undefined;
 
-  constructor(private el: ElementRef) {}
+  constructor(private el: ElementRef, private chatService: ChatService, private user: User) { }
 
-  ngOnInit() {}
+  ngOnInit() { 
+    // this.getDraw();
+  }
 
   ngAfterViewInit(): void {
     // @ts-ignore
     const canvasEl: HTMLCanvasElement = this.myCanvas.nativeElement;
     this.cx = canvasEl.getContext("2d");
-// @ts-ignore
+    // @ts-ignore
     const mouseDown$ = fromEvent(this.myCanvas.nativeElement, "mousedown");
     // @ts-ignore
     const mouseMove$ = fromEvent(this.myCanvas.nativeElement, "mousemove");
@@ -76,15 +81,25 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
       }),
       concatMap(() => mouseMove$.pipe(takeUntil(mouseUp$)))
     );
-// @ts-ignore
+    // @ts-ignore
     mouseDraw$.subscribe((e: MouseEvent) => this.draw(e.offsetX, e.offsetY));
   }
 
   draw(offsetX: number, offsetY: number) {
     this.cx.lineTo(offsetX, offsetY);
+    this.chatService.sendDraw(offsetX, offsetY)
     this.cx.stroke();
   }
-
+  getDraw() {
+    this.chatService.getMessageFromWebsocket().subscribe({
+      next: (draw) => {
+        console.log("mes couilles")
+        if(draw.userId !== this.user.id){
+          this.draw(draw.offsetX, draw.offsetY);
+        }
+      }
+    })
+  }
   refresh() {
     this.cx.beginPath();
     this.cx.clearRect(0, 0, this.canvas.width, this.canvas.height);

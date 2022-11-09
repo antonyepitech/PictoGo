@@ -70,7 +70,7 @@ func (client *Client) readPump() {
 			}
 			break
 		}
-
+		log.Println(jsonMessage)
 		client.wsServer.broadcast <- jsonMessage
 	}
 
