@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ChatService} from "../../service/chat.service";
 import {ChatMessage} from "../../model/message.model";
+import {User} from "../../model/user.model";
 
 @Component({
   selector: 'app-gameScene',
@@ -10,12 +11,16 @@ import {ChatMessage} from "../../model/message.model";
 })
 export class GameSceneComponent implements OnInit, OnDestroy {
 
+  private currentUser: User;
   public message: string = '';
   public formPrincipal : FormGroup;
   public messages: ChatMessage[] = [];
 
   constructor(private fb: FormBuilder, private chatService: ChatService) {
+    this.currentUser = new User();
+    this.currentUser.name = "toto";
     this.formPrincipal = this.fb.group({});
+    this.chatService.connectUser(this.currentUser);
     this.chatService.connectToWebSocketMessage();
   }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {Message} from "@angular/compiler/src/i18n/i18n_ast";
 import {Observable} from "rxjs";
 import {ChatMessage} from "../model/message.model";
+import {User} from "../model/user.model";
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,10 @@ export class ChatService {
   // private listener: EventEmitter<any> = new EventEmitter();
 
   public constructor() {
-    this.socket = new WebSocket("ws://localhost:8080/ws");
+  }
+
+  connectUser(user: User) {
+    this.socket = new WebSocket("ws://localhost:8080/ws"+ "?name=" + user.name);
   }
 
   connectToWebSocketMessage() {
@@ -37,6 +40,7 @@ export class ChatService {
   getMessageFromWebsocket(): Observable<ChatMessage> {
     return new Observable(observer => {
       this.socket.onmessage = event => {
+        console.log(event);
         observer.next(JSON.parse(event.data));
       }
     });
