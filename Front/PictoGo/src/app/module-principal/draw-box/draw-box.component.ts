@@ -81,8 +81,10 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
   }
 
   draw(offsetX: number, offsetY: number) {
+
     this.cx.lineTo(offsetX, offsetY);
     this.cx.stroke();
+    console.log(this.cx);
   }
 
   refresh() {
