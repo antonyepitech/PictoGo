@@ -11,6 +11,7 @@
   </div>
   <app-draw-box id="drawArea"></app-draw-box>
   <div id="chat">
+    <app-modal-end-game-chat></app-modal-end-game-chat>
     <div *ngFor="let message of messages">
       <p id="message">
         {{message.message}}
@@ -33,6 +34,7 @@
   </div>
 </div>
 <app-pop-up-start>toto</app-pop-up-start>
+
 
 
 

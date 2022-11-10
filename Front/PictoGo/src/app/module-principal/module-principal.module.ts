@@ -9,6 +9,7 @@ import { DrawBoxComponent } from './draw-box/draw-box.component';
 import { RoomComponent } from './room/room.component';
 import { CardPlayerComponent } from './card-player/card-player.component';
 import { PopUpStartComponent } from './pop-up-start/pop-up-start.component';
+import { ModalEndGameChatComponent } from './modal-end-game-chat/modal-end-game-chat.component';
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { PopUpStartComponent } from './pop-up-start/pop-up-start.component';
     DrawBoxComponent,
     RoomComponent,
     CardPlayerComponent,
-    PopUpStartComponent
+    PopUpStartComponent,
+    ModalEndGameChatComponent
   ],
   imports: [
     CommonModule,
