@@ -5,6 +5,7 @@ import {ChatMessage} from "../../model/message.model";
 import {User} from "../../model/user.model";
 import {LocalStorageService} from "../../service/local-storage.service";
 
+
 @Component({
   selector: 'app-gameScene',
   templateUrl: './gameScene.component.html',
@@ -25,6 +26,8 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     this.chatService.connectUser(this.currentUser);
     this.chatService.connectToWebSocketMessage();
   }
+
+  onClickPlay(){}
 
   ngOnInit() {
     this.initializeForm();
@@ -64,6 +67,11 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     if(this.formPrincipal.valid) {
       this.chatService.sendMessage(this.formPrincipal.value.message);
     }
+  }
+
+  filterName:string;
+  clear(){
+    this.filterName = '';
   }
 
 }

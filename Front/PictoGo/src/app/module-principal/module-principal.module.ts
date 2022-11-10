@@ -7,6 +7,7 @@ import {HomeComponent} from "./home/home.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { DrawBoxComponent } from './draw-box/draw-box.component';
 import { RoomComponent } from './room/room.component';
+import { CardPlayerComponent } from './card-player/card-player.component';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { RoomComponent } from './room/room.component';
     GameSceneComponent,
     HomeComponent,
     DrawBoxComponent,
-    RoomComponent
+    RoomComponent,
+    CardPlayerComponent
   ],
   imports: [
     CommonModule,
