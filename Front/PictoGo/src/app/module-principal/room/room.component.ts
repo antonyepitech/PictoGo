@@ -20,6 +20,10 @@ export class RoomComponent implements OnInit {
     this.rooms.push(room1);
   }
 
+  onClickPlay(){
+    this.router.navigate(['']);
+  }
+
   ngOnInit(): void {
     this.initialize();
   }
