@@ -69,4 +69,9 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     }
   }
 
+  filterName:string;
+  clear(){
+    this.filterName = '';
+  }
+
 }
