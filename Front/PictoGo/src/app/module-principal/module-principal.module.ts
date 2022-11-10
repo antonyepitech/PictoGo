@@ -8,6 +8,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { DrawBoxComponent } from './draw-box/draw-box.component';
 import { RoomComponent } from './room/room.component';
 import { CardPlayerComponent } from './card-player/card-player.component';
+import { PopUpStartComponent } from './pop-up-start/pop-up-start.component';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { CardPlayerComponent } from './card-player/card-player.component';
     HomeComponent,
     DrawBoxComponent,
     RoomComponent,
-    CardPlayerComponent
+    CardPlayerComponent,
+    PopUpStartComponent
   ],
   imports: [
     CommonModule,
