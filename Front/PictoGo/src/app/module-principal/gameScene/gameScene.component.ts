@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ChatService} from "../../service/chat.service";
 import {ChatMessage} from "../../model/message.model";
 import {User} from "../../model/user.model";
+import {LocalStorageService} from "../../service/local-storage.service";
 
 @Component({
   selector: 'app-gameScene',
@@ -11,12 +12,13 @@ import {User} from "../../model/user.model";
 })
 export class GameSceneComponent implements OnInit, OnDestroy {
 
+  private pseudoCurrentUser: string = "";
   private currentUser: User;
   public message: string = '';
   public formPrincipal : FormGroup;
   public messages: ChatMessage[] = [];
 
-  constructor(private fb: FormBuilder, private chatService: ChatService) {
+  constructor(private fb: FormBuilder, private chatService: ChatService, private localStorageService: LocalStorageService) {
     this.currentUser = new User();
     this.currentUser.name = "toto";
     this.formPrincipal = this.fb.group({});
@@ -45,6 +47,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   }
 
   initialize() {
+    this.pseudoCurrentUser = this.localStorageService.getPseudo();
     this.messages = this.chatService.messages;
   }
 
