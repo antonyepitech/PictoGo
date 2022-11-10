@@ -27,9 +27,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     this.chatService.connectToWebSocketMessage();
   }
 
-  onClickPlay(){
-    this.router.navigate(['']);
-  }
+  onClickPlay(){}
 
   ngOnInit() {
     this.initializeForm();
