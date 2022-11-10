@@ -4,6 +4,7 @@ import {ChatService} from "../../service/chat.service";
 import {ChatMessage} from "../../model/message.model";
 import {User} from "../../model/user.model";
 import {LocalStorageService} from "../../service/local-storage.service";
+import {PopUpStartComponent} from "../pop-up-start/pop-up-start.component";
 
 
 @Component({
@@ -18,6 +19,8 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   public message: string = '';
   public formPrincipal : FormGroup;
   public messages: ChatMessage[] = [];
+
+  public _secondes: PopUpStartComponent;
 
   constructor(private fb: FormBuilder, private chatService: ChatService, private localStorageService: LocalStorageService) {
     this.currentUser = new User();
@@ -70,6 +73,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   }
 
   filterName:string;
+
   clear(){
     this.filterName = '';
   }
