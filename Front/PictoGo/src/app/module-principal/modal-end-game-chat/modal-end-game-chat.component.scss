@@ -1,0 +1,43 @@
+.modal {
+  display: flex; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 1200px;
+  top: 140px;
+  width: 300px;
+  height: 450px;
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  border: 3px solid #0a5efb;
+
+}
+
+/* Modal Content/Box */
+.modal-content {
+  border-radius: 5px;
+  border: 1px solid #888;
+  width: 100%; /* Could be more or less, depending on screen size */
+  height: 100%;
+  text-align: center;
+  color: #ededed;
+}
+
+#content{
+  margin-top: 150px;
+}
+
+.button{
+  margin-top: 50px;
+  margin-left: 5px;
+  border-radius: 4px;
+  border-color: #ededed;
+}
+
+#button1{
+  background-color: greenyellow;
+}
+
+#button2{
+  background-color: red;
+}
+

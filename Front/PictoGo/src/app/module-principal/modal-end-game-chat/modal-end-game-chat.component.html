@@ -1,0 +1,9 @@
+<div [style.display]="endGame ? 'flex': 'none'" id="myModal" class="modal">
+  <div class="modal-content">
+    <div id="content">
+      <p>Continue ?</p>
+      <button class="button" id="button1" (click)="continueGame()">Continue</button>
+      <button class="button" id="button2" (click)="leaveGame()">Leave</button>
+    </div>
+  </div>
+</div>
