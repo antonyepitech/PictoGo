@@ -11,10 +11,16 @@
   </div>
   <app-draw-box id="drawArea"></app-draw-box>
   <div id="chat">
-    <div *ngFor="let message of messages">
-      <p id="message">
-        {{message.message}}
-      </p>
+    <div *ngFor="let message of this.actualRoom.messages">
+      <div class="box-message">
+        <p class="sender">
+          {{message.sender.name}}
+        </p>
+        <p class="message">
+          {{message.message}}
+        </p>
+      </div>
+
     </div>
     <form *ngIf="formPrincipal" [formGroup]="this.formPrincipal" (submit)="onSubmit()">
       <div id="sendButton">

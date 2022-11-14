@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {ChatMessage} from "../model/message.model";
 import {User} from "../model/user.model";
 import {Room} from "../model/room.model";
-import {isNotNullOrUndefined} from "../util/control";
+import {isNotNullOrUndefined, isNullOrUndefined} from "../util/control";
+import {RoomMessage} from "../model/RoomMessage.model";
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,9 @@ import {isNotNullOrUndefined} from "../util/control";
 export class ChatService {
 
   public rooms: Room[] = [];
-  public messages: ChatMessage[];
+  public room: Room;
+  public messages: ChatMessage[] = [];
+  messageChange: Subject<Room> = new Subject<Room>()
   public roomInput: string;
   // public
 
@@ -19,34 +22,63 @@ export class ChatService {
   // private listener: EventEmitter<any> = new EventEmitter();
 
   public constructor() {
+    this.room = new Room();
+    this.room = new Room();
+    this.room.clients = [];
+    this.room.messages = [];
   }
 
-  connectUser(user: User) {
-    this.socket = new WebSocket("ws://localhost:8080/ws"+ "?name=" + user.name);
+  connectToMainWebsocket(pseudo: string) {
+    this.socket = new WebSocket("ws://localhost:8080/ws"+ "?name=" + pseudo);
+    this.socket.onopen = event => {
+      this.getAllRooms();
+    }
+  }
+
+  connectUser(pseudo: string) {
+    this.socket = new WebSocket("ws://localhost:8080/ws"+ "?name=" + pseudo);
+    this.connectToWebSocketMessage();
   }
 
   connectToWebSocketMessage() {
     this.socket.onopen = event => {
-      console.log("connected ok");
-      console.log(event);
-
-      //
+      this.joinRoom();
     }
   }
 
   disconnectFromWebSocketMessage() {
     this.socket.onclose = event => {
-      console.log("disconnect ok");
-      console.log(event);
+      // console.log("disconnect ok");
+      // console.log(event);
     }
   }
 
-  getMessageFromWebsocket(): Observable<ChatMessage> {
+  /**
+   * GET ALL ROOMS BUT CAN HANDLE OTHER CATION LATER NOT BOUND DIRECTLY WITH GAMES
+   */
+  getRoomsActionFromWebsocket(): Observable<Room[]> {
     return new Observable(observer => {
-      this.socket.addEventListener('message', (event) => {
-        console.log(event);
-        observer.next(JSON.parse(event.data));
+      this.socket.onmessage = event => {
+        let data = event.data;
+        data = data.split(/\r?\n/);
 
+        for (let i = 0; i < data.length; i++) {
+          let msg = JSON.parse(data[i]);
+          switch (msg.action) {
+            case "get-rooms":
+              observer.next(this.handleAllRooms(msg));
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    });
+  }
+
+  getMessageFromWebsocket(): Observable<Room> {
+    return new Observable(observer => {
+      this.socket.onmessage = event => {
         let data = event.data;
         data = data.split(/\r?\n/);
 
@@ -54,40 +86,45 @@ export class ChatService {
           let msg = JSON.parse(data[i]);
           switch (msg.action) {
             case "send-message":
-              this.handleChatMessage(msg);
+              observer.next(this.handleChatMessage(msg));
               break;
-            // case "user-join":
-            //   this.handleUserJoined(msg);
-            //   break;
-            // case "user-left":
-            //   this.handleUserLeft(msg);
-            //   break;
+            case "user-join":
+              observer.next(this.handleUserJoined(msg));
+              break;
+            case "user-left":
+              observer.next(this.handleUserLeft(msg));
+              break;
             case "room-joined":
-              this.handleRoomJoined(msg);
+              console.log(msg);
+              this.room = msg.target;
+              observer.next(this.handleRoomJoined(msg));
               break;
-            case "get-all-game":
-              this.getAllGames(msg);
-              break;
+            // case "room-create":
+            //   this.getNewGame(msg);
+            //   break;
+            // case "get-all-game":
+            //   this.getAllGames(msg);
+            //   break;
             default:
               break;
           }
-
         }
-
-      })
+      }
     });
   }
 
-  sendMessage(message: string) {
-    console.log(message)
-    this.socket.send(JSON.stringify({message: message}));
-  }
-
-  handleChatMessage(msg: ChatMessage) {
+  handleChatMessage(msg: ChatMessage): Room {
     const room: Room | null = this.findRoom(msg.target.id);
     if (isNotNullOrUndefined(room)) {
-      room?.messages.push(msg);
+      // room?.messages.push(msg);
     }
+
+    if(isNullOrUndefined(this.room.messages)) {
+      this.room.messages = [];
+    }
+    this.room.messages.push(msg)
+    this.messageChange.next(this.room);
+    return this.room;
   }
 
   public close() {
@@ -99,7 +136,7 @@ export class ChatService {
     // return this.listener;
   }
 
-  public findRoom(roomId: number): Room | null {
+  public findRoom(roomId: number): any | null {
     for (let i = 0; i < this.rooms.length; i++) {
       if (this.rooms[i].id === roomId) {
         return this.rooms[i];
@@ -110,7 +147,6 @@ export class ChatService {
 
   public joinRoom() {
     this.socket.send(JSON.stringify({ action: 'join-room', message: this.roomInput }));
-    this.roomInput = "";
   }
 
   public leaveRoom(room: Room) {
@@ -124,32 +160,74 @@ export class ChatService {
     }
   }
 
-  // handleUserJoined(msg: ChatMessage) {
-  //   this.users.push(msg.sender);
-  // }
+  handleUserJoined(msg: ChatMessage): Room {
+    console.log('dans hadle user join')
+    this.room.clients.push(msg.sender);
+    return this.room;
+  }
   //
-  // handleUserLeft(msg: ChatMessage) {
-  //   for (let i = 0; i < this.users.length; i++) {
-  //     if (this.users[i].id == msg.sender.id) {
-  //       this.users.splice(i, 1);
-  //     }
-  //   }
-  // }
+  handleUserLeft(msg: ChatMessage): Room {
+    for (let i = 0; i < this.room.clients.length; i++) {
+      if (this.room.clients[i].id == msg.sender.id) {
+        this.room.clients.splice(i, 1);
+      }
+    }
+    return this.room;
+  }
 
-  public handleRoomJoined(msg: ChatMessage) {
+  public handleAllRooms(msg: RoomMessage): Room[] {
+    const rooms: Room[] = msg.target;
+
+    if(isNotNullOrUndefined(rooms) && isNotNullOrUndefined(rooms.length) && rooms.length > 0) {
+      rooms.forEach(room => {
+        this.rooms.push(room);
+      })
+    }
+
+    return this.rooms;
+  }
+
+  public handleRoomJoined(msg: ChatMessage): Room {
     let room = msg.target;
-    // room["messages"] = [];
     this.rooms.push(room);
+    this.room = room;
+    return this.room;
   }
 
   /**
-   * ce ne sera pas un chat message mais
+   * get all rooms
    */
-  getAllGames(msg: ChatMessage):Observable<Room[]> {
+  public getAllRooms() {
+    this.socket.send(JSON.stringify({ action: 'get-rooms', message: '' }));
+  }
+
+
+  getNewGame(msg: ChatMessage) {
+    console.log('new game created')
+    console.log(msg)
+  }
+
+  setRoom(roomName: string) {
+    this.roomInput = roomName;
+  }
+
+  sendMessage(room : Room, message: string) {
+    if (message !== "") {
+      this.socket.send(JSON.stringify({
+        action: 'send-message',
+        message: message,
+        target: {
+          id: room.id,
+          name: room.name,
+          private: false
+        }
+      }));
+    }
+  }
+
+  getMessages(): Observable<ChatMessage[]> {
     return new Observable(observer => {
-      this.socket.addEventListener('message', (event) => {
-        observer.next(event.data);
-      })
+      observer.next(this.room.messages);
     });
   }
 }
