@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const welcomeMessage = "%s joined the room"
+const welcomeMessage = "%s est arrivé dans la partie"
 
 type Room struct {
 	ID         uuid.UUID `json:"id"`

@@ -16,8 +16,9 @@ import {isNotNullOrUndefined, isNullOrUndefined} from "../../util/control";
 })
 export class GameSceneComponent implements OnInit, OnDestroy {
 
-  private pseudoCurrentUser: string = "";
-  private currentUser: User;
+  public pseudoCurrentUser: string = "";
+  private gameName: string = "";
+  public currentUser: User;
   public message: string = '';
   public formPrincipal : FormGroup;
   public messages: ChatMessage[] = [];
@@ -35,12 +36,13 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initializeForm();
-    this.initialize();
     this.messages = [];
     this.activatedRoute.params.subscribe({
       next: (param) => {
-        console.log(Number(param["id"]))
+        // console.log(Number(param["id"]))
         this.actualRoom = new Room();
+        this.gameName = param["id"]
+        this.initialize();
       }
     });
   }
@@ -53,15 +55,28 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
   initialize() {
     this.pseudoCurrentUser = this.localStorageService.getPseudo();
+    console.log(this.pseudoCurrentUser)
 
-    this.chatService.setRoom(this.pseudoCurrentUser);
-
+    this.chatService.setRoom(this.gameName);
     this.chatService.connectUser(this.pseudoCurrentUser);
+
+    // TODO creer la fonction ^pour recuperer l'utilisateur actuel
+    // this.chatService.getCurrentUser()
 
     this.chatService.getMessageFromWebsocket().subscribe({
       next: (data) => {
         this.actualRoom = data;
         this.chatService.messageChange.subscribe((actualRoom) => {
+          this.actualRoom = actualRoom;
+          console.log(this.actualRoom.messages)
+          // TODO SUPPRIMER CETTE PARTIE POUR PASSER PAR LE BACK POUR RECuperer lutilisateur actuel
+          let allUser = this.actualRoom.clients.filter(user => user.name === this.pseudoCurrentUser);
+          console.log(this.actualRoom)
+          this.currentUser.name = allUser[0].name;
+          this.currentUser.id = allUser[0].id;
+        });
+
+        this.chatService.roomChange.subscribe((actualRoom) => {
           this.actualRoom = actualRoom;
         });
       }

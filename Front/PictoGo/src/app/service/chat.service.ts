@@ -15,6 +15,8 @@ export class ChatService {
   public room: Room;
   public messages: ChatMessage[] = [];
   messageChange: Subject<Room> = new Subject<Room>()
+  roomChange: Subject<Room> = new Subject<Room>()
+  public currentUser: User;
   public roomInput: string;
   // public
 
@@ -158,20 +160,29 @@ export class ChatService {
         break;
       }
     }
+    this.roomChange.next(this.room);
   }
 
   handleUserJoined(msg: ChatMessage): Room {
     console.log('dans hadle user join')
+    this.initializeMessageAndClientArray();
+
     this.room.clients.push(msg.sender);
+    this.room.messages.push(msg);
+    this.roomChange.next(this.room);
     return this.room;
   }
   //
   handleUserLeft(msg: ChatMessage): Room {
+    console.log('dans hadle user left');
+    console.log(this.room.clients);
     for (let i = 0; i < this.room.clients.length; i++) {
-      if (this.room.clients[i].id == msg.sender.id) {
+      if (this.room.clients[i].id === msg.sender.id) {
         this.room.clients.splice(i, 1);
       }
     }
+    console.log(this.room.clients);
+    this.roomChange.next(this.room);
     return this.room;
   }
 
@@ -189,6 +200,7 @@ export class ChatService {
 
   public handleRoomJoined(msg: ChatMessage): Room {
     let room = msg.target;
+    console.log(msg)
     this.rooms.push(room);
     this.room = room;
     return this.room;
@@ -229,5 +241,14 @@ export class ChatService {
     return new Observable(observer => {
       observer.next(this.room.messages);
     });
+  }
+
+  initializeMessageAndClientArray() {
+    if(isNullOrUndefined(this.room.clients)) {
+      this.room.clients = [];
+    }
+    if(isNullOrUndefined(this.room.messages)) {
+      this.room.messages = [];
+    }
   }
 }
