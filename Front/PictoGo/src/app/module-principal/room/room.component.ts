@@ -1,23 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {Room} from "../../model/room.model";
 import {ChatService} from "../../service/chat.service";
+import {LocalStorageService} from "../../service/local-storage.service";
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss']
 })
-export class RoomComponent implements OnInit {
+export class RoomComponent implements OnInit, OnDestroy {
 
   public rooms: Room[] = [];
+  private pseudoCurrentUser: string;
 
-  constructor(private router: Router, private chatService: ChatService) {
-    let room1 = new Room();
-    room1.id = 0;
-    room1.name = "game1";
-    room1.clients = [];
-    this.rooms.push(room1);
+  constructor(private router: Router, private chatService: ChatService,
+              private localStorageService: LocalStorageService) {
   }
 
   onClickPlay(){
@@ -29,26 +27,35 @@ export class RoomComponent implements OnInit {
   }
 
   initialize() {
-    let room2 = new Room();
-    room2.id = 1;
-    room2.name = "game2";
-    room2.clients = [];
-    this.rooms.push(room2);
 
+    this.pseudoCurrentUser = this.localStorageService.getPseudo();
+
+    //TODO voir comment transferer ce service a gameScene pour eviter de reinitialiser un nouveau service
+    // qui force la creation de l utilisateur identique
+    this.chatService.connectToMainWebsocket(this.pseudoCurrentUser);
     this.loadGames();
   }
+
+  ngOnDestroy(): void {
+    // this.chatService.disconnectFromWebSocketMessage();
+    // this.chatService.close();
+  }
+
+
 
   /**
    * load all existing game
    */
   loadGames() {
-    // this.chatService.getAllGames().subscribe((rooms) => {
-    //   this.rooms = rooms;
-    // });
+    this.chatService.getRoomsActionFromWebsocket().subscribe({
+      next: (rooms) => {
+        this.rooms = rooms;
+      }
+    });
   }
 
   onClickRoom(room: Room){
-    this.router.navigate(['/gameScene/'+ room.id])
+    this.router.navigate(['/gameScene/'+ room.name])
   }
 
 }

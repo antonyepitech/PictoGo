@@ -3,20 +3,20 @@
   <div id="roomsArea">
     <div id="fu">
       <div id="formRooms" *ngIf="rooms && rooms.length > 0">
-        <div *ngFor="let room of this.rooms; let index = index">
+        <div class="rooms" *ngFor="let room of this.rooms; let index = index">
           <div class="roomArea" id="{{index}}">
-            <button class="room" (click)="onClickRoom(room)">
+            <button class="room" (click)="onClickRoom(room)" class="room">
               <img src="favicon.ico">
               <div>{{room.name}}</div>
-              <div>Pseudo</div>
             </button>
           </div>
         </div>
+      </div>
+
+      <div *ngIf="!rooms || rooms.length < 1">
+        <p> Il n'y a pas encore de partie de lancés</p>
       </div>
     </div>
     <button id="buttonBack" (click)="onClickPlay()">BACK</button>
   </div>
 </div>
-
-
-

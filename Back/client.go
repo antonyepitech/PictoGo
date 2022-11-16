@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/gorilla/websocket"
 )
@@ -41,13 +44,19 @@ type Client struct {
 	conn     *websocket.Conn
 	wsServer *WsServer
 	send     chan []byte
+	ID       uuid.UUID `json:"id"`
+	Name     string    `json:"name"`
+	rooms    map[*Room]bool
 }
 
-func newClient(conn *websocket.Conn, wsServer *WsServer) *Client {
+func newClient(conn *websocket.Conn, wsServer *WsServer, name string) *Client {
 	return &Client{
+		ID:       uuid.New(),
+		Name:     name,
 		conn:     conn,
 		wsServer: wsServer,
 		send:     make(chan []byte, 256),
+		rooms:    make(map[*Room]bool),
 	}
 
 }
@@ -71,7 +80,7 @@ func (client *Client) readPump() {
 			break
 		}
 
-		client.wsServer.broadcast <- jsonMessage
+		client.handleNewMessage(jsonMessage)
 	}
 
 }
@@ -118,7 +127,11 @@ func (client *Client) writePump() {
 }
 
 func (client *Client) disconnect() {
+	log.Println("disconnect client")
 	client.wsServer.unregister <- client
+	for room := range client.rooms {
+		room.unregister <- client
+	}
 	close(client.send)
 	client.conn.Close()
 }
@@ -126,16 +139,169 @@ func (client *Client) disconnect() {
 // ServeWs handles websocket requests from clients requests.
 func ServeWs(wsServer *WsServer, w http.ResponseWriter, r *http.Request) {
 
+	name, ok := r.URL.Query()["name"]
+
+	if !ok || len(name[0]) < 1 {
+		log.Println("Url Param 'name' is missing")
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	client := newClient(conn, wsServer)
+	client := newClient(conn, wsServer, name[0])
 
 	go client.writePump()
 	go client.readPump()
 
 	wsServer.register <- client
+}
+
+func (client *Client) handleNewMessage(jsonMessage []byte) {
+
+	var message Message
+	if err := json.Unmarshal(jsonMessage, &message); err != nil {
+		log.Printf("Error on unmarshal JSON message %s", err)
+		return
+	}
+
+	message.Sender = client
+
+	switch message.Action {
+	case GetRooms:
+		client.getRooms()
+	case SendMessageAction:
+		roomID := message.Target.GetId()
+		if room := client.wsServer.findRoomByID(roomID); room != nil {
+			room.broadcast <- &message
+		}
+
+	case JoinRoomAction:
+		client.handleJoinRoomMessage(message)
+
+	case UserLeftAction:
+		client.handleLeaveRoomMessage(message)
+
+	case JoinRoomPrivateAction:
+		client.handleJoinRoomPrivateMessage(message)
+	}
+
+}
+
+func (client *Client) handleJoinRoomMessage(message Message) {
+	roomName := message.Message
+
+	client.joinRoom(roomName, message.Sender)
+}
+
+func (client *Client) handleLeaveRoomMessage(message Message) {
+	room := client.wsServer.findRoomByID(message.Message)
+	room.notifyClientLeft(client)
+	if room == nil {
+		return
+	}
+	client.notifyRoomLeaved(room, client)
+
+	if _, ok := client.rooms[room]; ok {
+		delete(client.rooms, room)
+	}
+
+
+	room.unregister <- client
+}
+
+func (client *Client) handleJoinRoomPrivateMessage(message Message) {
+
+	target := client.wsServer.findClientByID(message.Message)
+
+	if target == nil {
+		return
+	}
+
+	// create unique room name combined to the two IDs
+	roomName := message.Message + client.ID.String()
+
+	client.joinRoom(roomName, target)
+	target.joinRoom(roomName, client)
+
+}
+
+func (client *Client) getRooms() {
+
+	rooms := client.wsServer.findALLRooms()
+	message := MessageRoom{
+		Action: GetRooms,
+		Target: rooms,
+		Sender: client,
+	}
+
+	client.send <- message.encode()
+
+}
+
+func (client *Client) joinRoom(roomName string, sender *Client) {
+
+	room := client.wsServer.findRoomByName(roomName)
+	if room == nil {
+		room = client.wsServer.createRoom(roomName, sender != nil)
+		client.notifyRoomCreate(room, sender)
+		client.notifyRoomJoined(room, sender)
+	}
+
+	if !client.isInRoom(room) {
+
+		client.rooms[room] = true
+		room.register <- client
+
+		client.notifyRoomJoined(room, sender)
+	}
+
+}
+
+func (client *Client) isInRoom(room *Room) bool {
+	if _, ok := client.rooms[room]; ok {
+		return true
+	}
+
+	return false
+}
+
+func (client *Client) notifyRoomJoined(room *Room, sender *Client) {
+
+	message := Message{
+		Action: RoomJoinedAction,
+		Message: sender.Name + welcomeOwnerMessage,
+		Target: room,
+		Sender: sender,
+	}
+
+	client.send <- message.encode()
+}
+
+func (client *Client) notifyRoomLeaved(room *Room, sender *Client) {
+	message := Message{
+		Action: LeaveRoomAction,
+		Target: room,
+		Sender: sender,
+	}
+
+	client.send <- message.encode()
+}
+
+func (client *Client) notifyRoomCreate(room *Room, sender *Client) {
+	message := Message{
+		Action: RoomCreatedAction,
+		Message: "test room message",
+		Target: room,
+		Sender: sender,
+	}
+
+	client.send <- message.encode()
+}
+
+func (client *Client) GetName() string {
+	return client.Name
 }

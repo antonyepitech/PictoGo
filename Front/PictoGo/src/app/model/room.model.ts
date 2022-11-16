@@ -5,5 +5,5 @@ export class Room {
   id: number;
   name: string;
   clients: User[];
-  messages: ChatMessage[];
+  messages: ChatMessage[] =  [];
 }

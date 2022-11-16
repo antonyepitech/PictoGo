@@ -13,6 +13,7 @@ func main() {
 
 	wsServer := NewWebsocketServer()
 	go wsServer.Run()
+	log.Println("main test")
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		ServeWs(wsServer, w, r)
