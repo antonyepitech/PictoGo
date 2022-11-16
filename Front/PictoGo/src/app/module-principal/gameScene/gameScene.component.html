@@ -14,7 +14,7 @@
     <div *ngFor="let message of this.actualRoom.messages">
       <div *ngIf="message.sender && message.sender.name && this.currentUser && message && message.message.length > 0"
         [ngClass]="message.sender.name !== this.currentUser.name? 'box-message': 'box-message'">
-        <p class="sender" *ngIf="message.sender">
+        <p class="sender" *ngIf="message.sender && message.action !== 'leave-room' && message.action !== 'user-join'">
           {{message.sender.name}}
         </p>
         <p class="message">

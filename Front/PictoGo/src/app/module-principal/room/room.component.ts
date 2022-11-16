@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {Room} from "../../model/room.model";
 import {ChatService} from "../../service/chat.service";
@@ -9,7 +9,7 @@ import {LocalStorageService} from "../../service/local-storage.service";
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss']
 })
-export class RoomComponent implements OnInit {
+export class RoomComponent implements OnInit, OnDestroy {
 
   public rooms: Room[] = [];
   private pseudoCurrentUser: string;
@@ -26,9 +26,18 @@ export class RoomComponent implements OnInit {
 
     this.pseudoCurrentUser = this.localStorageService.getPseudo();
 
+    //TODO voir comment transferer ce service a gameScene pour eviter de reinitialiser un nouveau service
+    // qui force la creation de l utilisateur identique
     this.chatService.connectToMainWebsocket(this.pseudoCurrentUser);
     this.loadGames();
   }
+
+  ngOnDestroy(): void {
+    // this.chatService.disconnectFromWebSocketMessage();
+    // this.chatService.close();
+  }
+
+
 
   /**
    * load all existing game

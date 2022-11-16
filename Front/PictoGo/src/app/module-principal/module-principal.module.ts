@@ -8,6 +8,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { DrawBoxComponent } from './draw-box/draw-box.component';
 import { RoomComponent } from './room/room.component';
 import { CardPlayerComponent } from './card-player/card-player.component';
+import {ChatService} from "../service/chat.service";
 
 
 @NgModule({
@@ -23,6 +24,9 @@ import { CardPlayerComponent } from './card-player/card-player.component';
     ModulePrincipalRoutingModule,
     FormsModule,
     ReactiveFormsModule
+  ],
+  providers: [
+    ChatService
   ]
 })
 export class ModulePrincipalModule { }

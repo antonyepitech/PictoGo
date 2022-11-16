@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/google/uuid"
 )
 
+const welcomeOwnerMessage = " a crée la partie"
 const welcomeMessage = "%s est arrivé dans la partie"
+const welcomeWithoutNameMessage = " est arrivé dans la partie"
+const leaveMessage = " a quitté la partie"
 
 type Room struct {
 	ID         uuid.UUID `json:"id"`
@@ -50,14 +52,13 @@ func (room *Room) RunRoom() {
 }
 
 func (room *Room) registerClientInRoom(client *Client) {
-	if !room.Private {
-		room.notifyClientJoined(client)
-	}
+	room.notifyClientJoined(client)
 	room.clients[client] = true
 }
 
 func (room *Room) unregisterClientInRoom(client *Client) {
 	if _, ok := room.clients[client]; ok {
+
 		delete(room.clients, client)
 	}
 }
@@ -73,6 +74,26 @@ func (room *Room) notifyClientJoined(client *Client) {
 		Action:  SendMessageAction,
 		Target:  room,
 		Message: fmt.Sprintf(welcomeMessage, client.GetName()),
+	}
+
+	room.broadcastToClientsInRoom(message.encode())
+
+	message1 := &Message{
+		Action:  UserJoinedAction,
+		Sender: client,
+		Target:  room,
+		Message: fmt.Sprintf(welcomeMessage, client.GetName()),
+	}
+
+	room.broadcastToClientsInRoom(message1.encode())
+}
+
+func (room *Room) notifyClientLeft(client *Client) {
+	message := &Message{
+		Action:  UserLeftAction,
+		Sender: client,
+		Target:  room,
+		Message: fmt.Sprintf(leaveMessage, client.GetName()),
 	}
 
 	room.broadcastToClientsInRoom(message.encode())

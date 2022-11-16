@@ -127,6 +127,7 @@ func (client *Client) writePump() {
 }
 
 func (client *Client) disconnect() {
+	log.Println("disconnect client")
 	client.wsServer.unregister <- client
 	for room := range client.rooms {
 		room.unregister <- client
@@ -181,7 +182,7 @@ func (client *Client) handleNewMessage(jsonMessage []byte) {
 	case JoinRoomAction:
 		client.handleJoinRoomMessage(message)
 
-	case LeaveRoomAction:
+	case UserLeftAction:
 		client.handleLeaveRoomMessage(message)
 
 	case JoinRoomPrivateAction:
@@ -193,18 +194,21 @@ func (client *Client) handleNewMessage(jsonMessage []byte) {
 func (client *Client) handleJoinRoomMessage(message Message) {
 	roomName := message.Message
 
-	client.joinRoom(roomName, nil)
+	client.joinRoom(roomName, message.Sender)
 }
 
 func (client *Client) handleLeaveRoomMessage(message Message) {
 	room := client.wsServer.findRoomByID(message.Message)
+	room.notifyClientLeft(client)
 	if room == nil {
 		return
 	}
+	client.notifyRoomLeaved(room, client)
 
 	if _, ok := client.rooms[room]; ok {
 		delete(client.rooms, room)
 	}
+
 
 	room.unregister <- client
 }
@@ -244,6 +248,7 @@ func (client *Client) joinRoom(roomName string, sender *Client) {
 	if room == nil {
 		room = client.wsServer.createRoom(roomName, sender != nil)
 		client.notifyRoomCreate(room, sender)
+		client.notifyRoomJoined(room, sender)
 	}
 
 	if !client.isInRoom(room) {
@@ -265,8 +270,20 @@ func (client *Client) isInRoom(room *Room) bool {
 }
 
 func (client *Client) notifyRoomJoined(room *Room, sender *Client) {
+
 	message := Message{
 		Action: RoomJoinedAction,
+		Message: sender.Name + welcomeOwnerMessage,
+		Target: room,
+		Sender: sender,
+	}
+
+	client.send <- message.encode()
+}
+
+func (client *Client) notifyRoomLeaved(room *Room, sender *Client) {
+	message := Message{
+		Action: LeaveRoomAction,
 		Target: room,
 		Sender: sender,
 	}
@@ -277,6 +294,7 @@ func (client *Client) notifyRoomJoined(room *Room, sender *Client) {
 func (client *Client) notifyRoomCreate(room *Room, sender *Client) {
 	message := Message{
 		Action: RoomCreatedAction,
+		Message: "test room message",
 		Target: room,
 		Sender: sender,
 	}

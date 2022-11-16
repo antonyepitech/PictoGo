@@ -39,7 +39,6 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     this.messages = [];
     this.activatedRoute.params.subscribe({
       next: (param) => {
-        // console.log(Number(param["id"]))
         this.actualRoom = new Room();
         this.gameName = param["id"]
         this.initialize();
@@ -49,13 +48,12 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.chatService.leaveRoom(this.actualRoom);
-    this.chatService.close();
     this.chatService.disconnectFromWebSocketMessage();
+    this.chatService.close();
   }
 
   initialize() {
     this.pseudoCurrentUser = this.localStorageService.getPseudo();
-    console.log(this.pseudoCurrentUser)
 
     this.chatService.setRoom(this.gameName);
     this.chatService.connectUser(this.pseudoCurrentUser);
@@ -66,19 +64,6 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     this.chatService.getMessageFromWebsocket().subscribe({
       next: (data) => {
         this.actualRoom = data;
-        this.chatService.messageChange.subscribe((actualRoom) => {
-          this.actualRoom = actualRoom;
-          console.log(this.actualRoom.messages)
-          // TODO SUPPRIMER CETTE PARTIE POUR PASSER PAR LE BACK POUR RECuperer lutilisateur actuel
-          let allUser = this.actualRoom.clients.filter(user => user.name === this.pseudoCurrentUser);
-          console.log(this.actualRoom)
-          this.currentUser.name = allUser[0].name;
-          this.currentUser.id = allUser[0].id;
-        });
-
-        this.chatService.roomChange.subscribe((actualRoom) => {
-          this.actualRoom = actualRoom;
-        });
       }
     });
   }

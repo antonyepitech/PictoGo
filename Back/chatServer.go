@@ -1,7 +1,5 @@
 package main
 
-import "log"
-
 type WsServer struct {
 	clients    map[*Client]bool
 	register   chan *Client
@@ -23,6 +21,7 @@ func NewWebsocketServer() *WsServer {
 
 // Run our websocket server, accepting various requests
 func (server *WsServer) Run() {
+
 	for {
 		select {
 
@@ -35,26 +34,29 @@ func (server *WsServer) Run() {
 		case message := <-server.broadcast:
 			server.broadcastToClients(message)
 		}
-
 	}
 }
 
 func (server *WsServer) registerClient(client *Client) {
+
 	server.notifyClientJoined(client)
 	server.listOnlineClients(client)
 	server.clients[client] = true
 }
 
 func (server *WsServer) unregisterClient(client *Client) {
+
 	if _, ok := server.clients[client]; ok {
 		delete(server.clients, client)
 		server.notifyClientLeft(client)
 	}
+
 }
 
 func (server *WsServer) notifyClientJoined(client *Client) {
 	message := &Message{
 		Action: UserJoinedAction,
+		Message: client.Name + welcomeWithoutNameMessage,
 		Sender: client,
 	}
 
@@ -63,7 +65,8 @@ func (server *WsServer) notifyClientJoined(client *Client) {
 
 func (server *WsServer) notifyClientLeft(client *Client) {
 	message := &Message{
-		Action: UserLeftAction,
+		Action: LeaveRoomAction,
+		Message: client.GetName() + leaveMessage,
 		Sender: client,
 	}
 
@@ -96,7 +99,6 @@ func (server *WsServer) findRoomByName(name string) *Room {
 		}
 	}
 
-	log.Println(foundRoom)
 	return foundRoom
 }
 

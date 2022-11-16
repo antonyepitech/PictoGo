@@ -6,9 +6,7 @@ import {Room} from "../model/room.model";
 import {isNotNullOrUndefined, isNullOrUndefined} from "../util/control";
 import {RoomMessage} from "../model/RoomMessage.model";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ChatService {
 
   public rooms: Room[] = [];
@@ -50,8 +48,7 @@ export class ChatService {
 
   disconnectFromWebSocketMessage() {
     this.socket.onclose = event => {
-      // console.log("disconnect ok");
-      // console.log(event);
+
     }
   }
 
@@ -91,16 +88,18 @@ export class ChatService {
               observer.next(this.handleChatMessage(msg));
               break;
             case "user-join":
-              observer.next(this.handleUserJoined(msg));
+                observer.next(this.handleUserJoined(msg));
               break;
             case "user-left":
               observer.next(this.handleUserLeft(msg));
               break;
             case "room-joined":
-              console.log(msg);
               this.room = msg.target;
               observer.next(this.handleRoomJoined(msg));
               break;
+            case "leave-room":
+              observer.next(this.handleUserLeft(msg));
+              break
             // case "room-create":
             //   this.getNewGame(msg);
             //   break;
@@ -121,16 +120,26 @@ export class ChatService {
       // room?.messages.push(msg);
     }
 
-    if(isNullOrUndefined(this.room.messages)) {
-      this.room.messages = [];
+    if(msg.target.id === this.room.id) {
+      if(isNullOrUndefined(this.room.messages)) {
+        this.room.messages = [];
+      }
+
+      if(this.room.messages.length === 0) {
+        this.room.messages.push(msg)
+        this.messageChange.next(this.room);
+      }
+
+      if(this.room.messages.length > 0 && msg.message !== this.room.messages[this.room.messages.length -1].message) {
+        this.room.messages.push(msg)
+        this.messageChange.next(this.room);
+      }
+
     }
-    this.room.messages.push(msg)
-    this.messageChange.next(this.room);
     return this.room;
   }
 
   public close() {
-    console.log("close ok");
     this.socket.close();
   }
 
@@ -152,37 +161,51 @@ export class ChatService {
   }
 
   public leaveRoom(room: Room) {
-    this.socket.send(JSON.stringify({ action: 'leave-room', message: room.id }));
+    this.socket.send(JSON.stringify({action: 'user-left', message: room.id}));
 
-    for (let i = 0; i < this.rooms.length; i++) {
-      if (this.rooms[i].id === room.id) {
-        this.rooms.splice(i, 1);
-        break;
+    if (this.room.id === room.id) {
+      for (let i = 0; i < this.rooms.length; i++) {
+        if (this.rooms[i].id === room.id) {
+          this.rooms.splice(i, 1);
+          break;
+        }
       }
+      this.roomChange.next(this.room);
     }
-    this.roomChange.next(this.room);
   }
 
-  handleUserJoined(msg: ChatMessage): Room {
-    console.log('dans hadle user join')
+  handleUserJoined(msg: ChatMessage): Room
+  {
     this.initializeMessageAndClientArray();
 
-    this.room.clients.push(msg.sender);
-    this.room.messages.push(msg);
-    this.roomChange.next(this.room);
+    if (this.room.id === msg.target.id) {
+      if (this.room.clients.length > 0) {
+        let clientExist = this.room.clients.filter(client => client.name === msg.sender.name)
+        if (clientExist.length === 0) {
+          this.room.clients.push(msg.sender);
+        }
+      } else {
+        this.room.clients.push(msg.sender);
+      }
+
+      this.roomChange.next(this.room);
+      return this.room;
+    }
     return this.room;
   }
+
   //
   handleUserLeft(msg: ChatMessage): Room {
-    console.log('dans hadle user left');
-    console.log(this.room.clients);
-    for (let i = 0; i < this.room.clients.length; i++) {
-      if (this.room.clients[i].id === msg.sender.id) {
-        this.room.clients.splice(i, 1);
+
+    if (isNotNullOrUndefined(this.room.messages) && isNotNullOrUndefined(this.room.messages.length) && (this.room.messages.length > 0 && this.room.messages[this.room.messages.length - 1].message !== msg.message) || (this.room.messages.length === 0)) {
+      for (let i = 0; i < this.room.clients.length; i++) {
+        if (this.room.clients[i].id === msg.sender.id) {
+          this.room.clients.splice(i, 1);
+        }
       }
+      this.room.messages.push(msg)
+      this.roomChange.next(this.room);
     }
-    console.log(this.room.clients);
-    this.roomChange.next(this.room);
     return this.room;
   }
 
@@ -199,8 +222,18 @@ export class ChatService {
   }
 
   public handleRoomJoined(msg: ChatMessage): Room {
+    this.initializeMessageAndClientArray();
     let room = msg.target;
-    console.log(msg)
+
+    if(this.room.clients.length > 0) {
+      let clientExist = this.room.clients.filter(client => client === msg.sender);
+      if(clientExist.length === 0) {
+        this.room.clients.push(msg.sender);
+      }
+    } else {
+      this.room.clients.push(msg.sender);
+    }
+
     this.rooms.push(room);
     this.room = room;
     return this.room;
@@ -211,12 +244,6 @@ export class ChatService {
    */
   public getAllRooms() {
     this.socket.send(JSON.stringify({ action: 'get-rooms', message: '' }));
-  }
-
-
-  getNewGame(msg: ChatMessage) {
-    console.log('new game created')
-    console.log(msg)
   }
 
   setRoom(roomName: string) {
