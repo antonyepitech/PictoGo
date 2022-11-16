@@ -109,3 +109,31 @@
   margin-bottom: 10px;
 }
 
+.message, .sender, .box-message, .box-owner {
+  margin: 0;
+}
+
+.box-message {
+  margin: 0.5em;
+  border-radius: 0.5em;
+  width: 50%;
+  background: #FFF;
+  padding: 0.4em 0.5em;
+}
+
+.box-owner {
+  margin: 0.5em 0 0.5em 50%;
+  border-radius: 0.5em;
+  width: 50%;
+  background: #FFF;
+  padding: 0.4em 0.5em;
+}
+
+.sender {
+  color: lightseagreen;
+  font-weight: bold;
+  padding-right: 0.2em;
+}
+
+
+

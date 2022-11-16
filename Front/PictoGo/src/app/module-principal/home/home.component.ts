@@ -28,9 +28,7 @@ export class HomeComponent implements OnInit {
     this.localStorageService.savePseudo(this.pseudo);
     // Le front redirige le joueur vers la room, en tant qu’administrateur de la room
     // add create game and get id of this game
-    let idGame = 0;
-
-    this.router.navigate(['/gameScene/'+ idGame]);
+    this.router.navigate(['/gameScene/'+ this.pseudo]);
   }
 
   verifyPseudo() {
