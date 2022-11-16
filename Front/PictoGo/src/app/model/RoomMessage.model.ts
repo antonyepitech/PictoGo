@@ -1,9 +1,9 @@
 import {Room} from "./room.model";
 import {User} from "./user.model";
 
-export class ChatMessage {
+export class RoomMessage {
   message: string;
   action: string;
-  target: Room;
+  target: Room[];
   sender: User;
 }

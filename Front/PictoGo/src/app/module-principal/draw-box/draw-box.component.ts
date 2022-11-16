@@ -44,7 +44,7 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
   name = "Angular";
   // @ts-ignore
   cx;
-  canvas = { width: 800, height: 500 };
+  canvas = { width: 810, height: 400 };
   currentLocation = { x: 200, y: 200 };
   //preDirection: string;
 
@@ -81,50 +81,10 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
   }
 
   draw(offsetX: number, offsetY: number) {
+
     this.cx.lineTo(offsetX, offsetY);
     this.cx.stroke();
-  }
-
-  autoDraw() {
-    const runTimes = 100;
-    for (let i = 0; i < runTimes; i++) {
-      this.excuteAutoDraw();
-    }
-  }
-
-  excuteAutoDraw() {
-    const direction = this.getDirection();
-
-    // @ts-ignore
-    const distance = DistanceConfig[direction];
-    const newLocation = { ...this.currentLocation };
-    newLocation.x = newLocation.x + distance.x;
-    newLocation.y = newLocation.y + distance.y;
-
-    if (this.isNewPath(newLocation)) {
-      console.log(this.currentLocation, newLocation);
-      this.cx.moveTo(this.currentLocation.x, this.currentLocation.y);
-      this.cx.lineTo(newLocation.x, newLocation.y);
-      this.cx.stroke();
-
-      this.currentLocation = newLocation;
-      // @ts-ignore
-      this.locationList.push(newLocation);
-    }
-
-  }
-
-  isNewPath(newLoc: { x: number; y: number }) {
-    const idx = this.locationList.findIndex(
-      // @ts-ignore
-      oldLoc => oldLoc.x === newLoc.x && oldLoc.y == newLoc.y
-    );
-    return idx == -1;
-  }
-
-  getDirection() {
-    const idx = Math.floor(Math.random() * 4);
-    return Direction[idx];
+    console.log(this.cx);
   }
 
   refresh() {

@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
 import { Router } from '@angular/router';
+import { isNullOrUndefined } from "../../util/control";
+import {LocalStorageService} from "../../service/local-storage.service";
 
 @Component({
   selector: 'app-home',
@@ -9,12 +10,31 @@ import { Router } from '@angular/router';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() {
+  public pseudo: string;
+  public pseudoOk: boolean = false;
+
+  constructor(private router : Router, private localStorageService: LocalStorageService) {
+
   }
 
-  // tslint:disable-next-line:typedef
   ngOnInit() {}
-  // tslint:disable-next-line:typedef
 
+  onClickPlay(){
+    this.localStorageService.savePseudo(this.pseudo);
+    this.router.navigate(['/room']);
+  }
+
+  onClickCreate() {
+    this.localStorageService.savePseudo(this.pseudo);
+    // Le front redirige le joueur vers la room, en tant qu’administrateur de la room
+    // add create game and get id of this game
+    this.router.navigate(['/gameScene/'+ this.pseudo]);
+  }
+
+  verifyPseudo() {
+    if(isNullOrUndefined(this.pseudo)) {
+      this.pseudoOk = false;
+    }else this.pseudoOk = this.pseudo.length > 0;
+  }
 }
 

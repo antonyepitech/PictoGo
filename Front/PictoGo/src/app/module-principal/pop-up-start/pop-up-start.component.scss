@@ -1,0 +1,50 @@
+.modal {
+  display: flex; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  border: 3px solid #0a5efb;
+
+}
+
+/* Modal Content/Box */
+.modal-content {
+  border-radius: 5px;
+  background-color: #0a5efb;
+  background-image: url(../../../assets/Images/textura.png);
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 20%; /* Could be more or less, depending on screen size */
+  height: 20%;
+  text-align: center;
+  color: #ededed;
+}
+
+.button{
+  margin-top: 50px;
+  margin-left: 5px;
+  border-radius: 4px;
+  border-color: #ededed;
+}
+
+#button1{
+  background-color: greenyellow;
+}
+
+#button2{
+  background-color: red;
+}
+
+#chrono{
+  position: fixed;
+  top: 105px;
+  left: 435px;
+  color: red;
+}
+

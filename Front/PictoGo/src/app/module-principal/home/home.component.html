@@ -4,10 +4,10 @@
   </div>
   <div id="corp">
     <h1>PictoGo</h1>
-    <input id="name" type="text" placeholder="Player Name">
+    <input id="name" type="text" placeholder="Player Name" [(ngModel)]="pseudo" (ngModelChange)="verifyPseudo()">
     <div id="button">
-      <button id="button1" type="button" value="Create Game">Create Game</button>
-      <button id="button2" type="button" value="Play"><a routerLink="/gameScene">Play</a></button>
+      <button id="button1" type="button" value="Create Game" (click)="onClickCreate()" [disabled]="!pseudoOk">Create Game</button>
+      <button (click)="onClickPlay()" id="button2" type="button" value="Play" [disabled]="!pseudoOk">Play</button>
     </div>
   </div>
 </div>

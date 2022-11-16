@@ -1,25 +1,52 @@
-<div id="gameName">PictoGo</div>
-<div id="word">_ _ _ _ _</div>
+<button id="gameName" (click)="onClickPlay()">PictoGo</button>
+<div id="header">
+  <div id="clock"></div>
+  <p id="time">{{_secondes}}</p>
+  <p id="word">_ _ _ _ _</p>
+</div>
 <div id="boxGameScene">
-  <div id="player">player</div>
+  <div id="player">
+      <h1 id="players">Players</h1>
+    <app-card-player [actualRoom]="actualRoom"></app-card-player>
+  </div>
   <app-draw-box id="drawArea"></app-draw-box>
   <div id="chat">
-    <div *ngFor="let message of messages">
-      <p>
-        {{message.message}}
-      </p>
+    <app-modal-end-game-chat></app-modal-end-game-chat>
+    <div *ngFor="let message of this.actualRoom.messages">
+      <div *ngIf="message.sender && message.sender.name && this.currentUser && message && message.message.length > 0"
+        [ngClass]="message.sender.name !== this.currentUser.name? 'box-message': 'box-message'">
+        <p class="sender" *ngIf="message.sender && message.action !== 'leave-room' && message.action !== 'user-join'">
+          {{message.sender.name}}
+        </p>
+        <p class="message">
+          {{message.message}}
+        </p>
+      </div>
+      <div class="box-message" *ngIf="!message.sender && message && message.message.length > 0">
+        <p class="message">
+          {{message.message}}
+        </p>
+      </div>
+
     </div>
     <form *ngIf="formPrincipal" [formGroup]="this.formPrincipal" (submit)="onSubmit()">
+      <div id="sendButton">
+        <input id="textChat" type="text" #filterName name="filterName" placeholder="type your message" formControlName="message">
+        <div *ngIf="f['message'].touched && f['message'].invalid" class="alert alert-danger">
+          <div *ngIf="f['message'].errors && f['message'].errors['minlength']">1 charactères min.</div>
+        </div>
 
-      <input id="textChat" type="text" placeholder="type your message" formControlName="message">
-      <div *ngIf="f['message'].touched && f['message'].invalid" class="alert alert-danger">
-        <div *ngIf="f['message'].errors && f['message'].errors['minlength']">1 charactères min.</div>
+        <!-- SUBMIT -->
+        <div class="d-flex justify-content-center mt-3 mb-4">
+          <button class="btn btn-primary" (click)="filterName.value=''" [disabled]="!formPrincipal.valid" type="submit">Envoyer</button>
+        </div>
       </div>
 
-      <!-- SUBMIT -->
-      <div class="d-flex justify-content-center mt-3 mb-4">
-        <button class="btn btn-primary" [disabled]="!formPrincipal.valid" type="submit">Envoyer</button>
-      </div>
     </form>
   </div>
 </div>
+<app-pop-up-start>toto</app-pop-up-start>
+
+
+
+
