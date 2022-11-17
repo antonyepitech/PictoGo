@@ -178,6 +178,12 @@ func (client *Client) handleNewMessage(jsonMessage []byte) {
 		if room := client.wsServer.findRoomByID(roomID); room != nil {
 			room.broadcast <- &message
 		}
+	case GuessWord:
+		roomID := message.Target.GetId()
+		if room := client.wsServer.findRoomByID(roomID); room != nil {
+			room.GuessWord = message.Message
+			room.broadcast <- &message
+		}
 	case SendDrawAction:
 		roomID := message.Target.GetId()
 		if room := client.wsServer.findRoomByID(roomID); room != nil {

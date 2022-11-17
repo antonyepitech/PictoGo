@@ -29,6 +29,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   public drawInfos: ChatMessage[] = [];
   public guess = Objects;
   public wordToFound :string = "";
+  public hideWord: string = "";
 
   public _secondes: PopUpStartComponent;
 
@@ -42,7 +43,6 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   onClickPlay(){}
 
   ngOnInit() {
-    this.wordToFound = this.guess[Math.floor(Math.random() * 20)];
     this.initializeForm();
     this.messages = [];
     this.activatedRoute.params.subscribe({
@@ -61,6 +61,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   }
 
   initialize() {
+    // this.generateWord();
     this.pseudoCurrentUser = this.localStorageService.getPseudo();
     this.drawerPseudo = this.pseudoCurrentUser;
 
@@ -72,9 +73,18 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
     this.chatService.getMessageFromWebsocket().subscribe({
       next: (data) => {
+        this.wordToFound = data.guessWord;
         this.actualRoom = data;
+        this.generateHideWord();
       }
     });
+
+    this.chatService.guessWordChange.subscribe({
+      next: (word) => {
+        this.wordToFound = word;
+        this.generateHideWord();
+      }
+    })
 
     this.chatService.roomChange.subscribe({
       next: (actualRoom) => {
@@ -125,6 +135,29 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
   drawInfoSend(event: ChatMessage) {
     this.chatService.sendDraw(event.target, event.offsetX, event.offsetY, event.mouse);
+  }
+
+  launchGame(event: any) {
+    console.log(event)
+    console.log(this.wordToFound)
+    this.generateWord();
+    if(this.actualRoom.name === this.localStorageService.getPseudo()) {
+      this.chatService.sendGuessWord(this.actualRoom, this.wordToFound);
+    }
+  }
+
+  generateWord() {
+    this.wordToFound = this.guess[Math.floor(Math.random() * 20)];
+  }
+
+  generateHideWord() {
+    if(this.hideWord === "") {
+      this.wordToFound.length
+
+      for(let i=0; i < this.wordToFound.length; i++) {
+        this.hideWord += "_ ";
+      }
+    }
   }
 
 }

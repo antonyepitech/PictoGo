@@ -1,5 +1,6 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {Route, Router} from "@angular/router";
+import {Room} from "../../model/room.model";
 
 @Component({
   selector: 'app-pop-up-start',
@@ -7,6 +8,10 @@ import {Route, Router} from "@angular/router";
   styleUrls: ['./pop-up-start.component.scss']
 })
 export class PopUpStartComponent implements OnInit {
+
+  @Output() sendlaunchGame: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Input() pseudoCurrentUser: string;
+  @Input() actualRoom: Room;
 
   constructor(private router: Router) {}
 
@@ -22,6 +27,7 @@ export class PopUpStartComponent implements OnInit {
 
   start() {
     this.edited = true
+    this.sendlaunchGame.emit(true);
     this._timer = setInterval(() => {
       this._minutes = Math.floor(++this._totalSecondes / 60);
       this._secondes = this._totalSecondes - this._minutes * 60;

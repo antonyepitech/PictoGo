@@ -6,4 +6,5 @@ export class Room {
   name: string;
   clients: User[];
   messages: ChatMessage[] =  [];
+  guessWord: string;
 }

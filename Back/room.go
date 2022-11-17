@@ -13,6 +13,7 @@ const leaveMessage = " a quitté la partie"
 type Room struct {
 	ID         uuid.UUID `json:"id"`
 	Name       string    `json:"name"`
+	GuessWord string  `json:"guessWord"`
 	clients    map[*Client]bool
 	register   chan *Client
 	unregister chan *Client
@@ -21,10 +22,11 @@ type Room struct {
 }
 
 // NewRoom creates a new Room
-func NewRoom(name string, private bool) *Room {
+func NewRoom(name string, private bool, gessWord string) *Room {
 	return &Room{
 		ID:         uuid.New(),
 		Name:       name,
+		GuessWord:  gessWord,
 		clients:    make(map[*Client]bool),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),

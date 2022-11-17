@@ -7,6 +7,7 @@ import (
 
 const SendDrawAction = "send-draw"
 const SendMessageAction = "send-message"
+const GuessWord = "guess-word"
 const JoinRoomAction = "join-room"
 const LeaveRoomAction = "leave-room"
 const UserJoinedAction = "user-join"

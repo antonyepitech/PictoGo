@@ -14,7 +14,9 @@ export class ChatService {
   public room: Room;
   public drawInfos: ChatMessage[] = [];
   public messages: ChatMessage[] = [];
+  public actualWord: string = "";
 
+  guessWordChange: Subject<string> = new Subject<string>()
   messageChange: Subject<Room> = new Subject<Room>()
   roomChange: Subject<Room> = new Subject<Room>()
   drawInfoChange: Subject<ChatMessage> = new Subject<ChatMessage>()
@@ -111,6 +113,12 @@ export class ChatService {
             case "send-message":
               observer.next(this.handleChatMessage(msg));
               break;
+            case "guess-word":
+              if(this.actualWord !== msg.message){
+                observer.next(this.handleGuessWord(msg));
+              }
+
+              break;
             case "user-join":
                 observer.next(this.handleUserJoined(msg));
               break;
@@ -139,6 +147,14 @@ export class ChatService {
         }
       }
     });
+  }
+
+  handleGuessWord(msg: ChatMessage): Room {
+    if(msg.target.id === this.room.id && msg.target.name !== this.localStorageService.getPseudo()) {
+      console.log(msg.message)
+      this.guessWordChange.next(msg.message)
+    }
+    return msg.target;
   }
 
   handleChatMessage(msg: ChatMessage): Room {
@@ -294,6 +310,20 @@ export class ChatService {
     if (message !== "") {
       this.socket.send(JSON.stringify({
         action: 'send-message',
+        message: message,
+        target: {
+          id: room.id,
+          name: room.name,
+          private: false
+        }
+      }));
+    }
+  }
+
+  sendGuessWord(room : Room, message: string) {
+    if (message !== "") {
+      this.socket.send(JSON.stringify({
+        action: 'guess-word',
         message: message,
         target: {
           id: room.id,

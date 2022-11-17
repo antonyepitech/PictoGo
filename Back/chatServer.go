@@ -123,7 +123,7 @@ func (server *WsServer) findRoomByID(ID string) *Room {
 }
 
 func (server *WsServer) createRoom(name string, private bool) *Room {
-	room := NewRoom(name, private)
+	room := NewRoom(name, private, "")
 	go room.RunRoom()
 	server.rooms[room] = true
 
