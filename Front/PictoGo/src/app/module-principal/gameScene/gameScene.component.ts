@@ -7,7 +7,6 @@ import {LocalStorageService} from "../../service/local-storage.service";
 import {PopUpStartComponent} from "../pop-up-start/pop-up-start.component";
 import {Room} from "../../model/room.model";
 import {ActivatedRoute, Router} from "@angular/router";
-import {isNotNullOrUndefined, isNullOrUndefined} from "../../util/control";
 
 
 @Component({
@@ -18,12 +17,15 @@ import {isNotNullOrUndefined, isNullOrUndefined} from "../../util/control";
 export class GameSceneComponent implements OnInit, OnDestroy {
 
   public pseudoCurrentUser: string = "";
+  public drawerPseudo: string = "";
   private gameName: string = "";
   public currentUser: User;
   public message: string = '';
   public formPrincipal : FormGroup;
   public messages: ChatMessage[] = [];
   public actualRoom: Room;
+  public drawInfo: ChatMessage;
+  public drawInfos: ChatMessage[] = [];
 
   public _secondes: PopUpStartComponent;
 
@@ -56,6 +58,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
   initialize() {
     this.pseudoCurrentUser = this.localStorageService.getPseudo();
+    this.drawerPseudo = this.pseudoCurrentUser;
 
     this.chatService.setRoom(this.gameName);
     this.chatService.connectUser(this.pseudoCurrentUser);
@@ -68,6 +71,27 @@ export class GameSceneComponent implements OnInit, OnDestroy {
         this.actualRoom = data;
       }
     });
+
+    this.chatService.roomChange.subscribe({
+      next: (actualRoom) => {
+        console.log("roomChange")
+        this.actualRoom = actualRoom;
+        this.drawerPseudo = this.actualRoom.name;
+      }
+    })
+
+    this.chatService.drawInfoChange.subscribe({
+      next: (drawInfo) => {
+        this.drawInfo = drawInfo;
+        this.drawInfos.push(drawInfo);
+      }
+    })
+
+    // this.chatService.getDrawFromWebSocket().subscribe({
+    //   next: (data) => {
+    //     this.drawInfo = data;
+    //   }
+    // });
   }
 
   initializeForm() {
@@ -93,6 +117,10 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   filterName:string;
   clear(){
     this.filterName = '';
+  }
+
+  drawInfoSend(event: ChatMessage) {
+    this.chatService.sendDraw(event.target, event.offsetX, event.offsetY, event.mouse);
   }
 
 }
