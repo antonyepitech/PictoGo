@@ -47,7 +47,10 @@
     </form>
   </div>
 </div>
-<app-pop-up-start>toto</app-pop-up-start>
+<div *ngIf="actualRoom && pseudoCurrentUser">
+  <app-pop-up-start *ngIf="actualRoom.name === this.pseudoCurrentUser">toto</app-pop-up-start>
+</div>
+
 
 
 
