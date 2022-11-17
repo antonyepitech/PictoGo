@@ -5,15 +5,19 @@ import {User} from "../model/user.model";
 import {Room} from "../model/room.model";
 import {isNotNullOrUndefined, isNullOrUndefined} from "../util/control";
 import {RoomMessage} from "../model/RoomMessage.model";
+import {LocalStorageService} from "./local-storage.service";
 
 @Injectable()
 export class ChatService {
 
   public rooms: Room[] = [];
   public room: Room;
+  public drawInfos: ChatMessage[] = [];
   public messages: ChatMessage[] = [];
+
   messageChange: Subject<Room> = new Subject<Room>()
   roomChange: Subject<Room> = new Subject<Room>()
+  drawInfoChange: Subject<ChatMessage> = new Subject<ChatMessage>()
   public currentUser: User;
   public roomInput: string;
   // public
@@ -21,8 +25,7 @@ export class ChatService {
   private socket: WebSocket;
   // private listener: EventEmitter<any> = new EventEmitter();
 
-  public constructor() {
-    this.room = new Room();
+  public constructor(private localStorageService: LocalStorageService) {
     this.room = new Room();
     this.room.clients = [];
     this.room.messages = [];
@@ -75,6 +78,27 @@ export class ChatService {
     });
   }
 
+  // getDrawFromWebSocket():Observable<ChatMessage> {
+  //   return new Observable(observer => {
+  //     this.socket.onmessage = event => {
+  //       let data = event.data;
+  //       data = data.split(/\r?\n/);
+  //
+  //       for (let i = 0; i < data.length; i++) {
+  //         let msg = JSON.parse(data[i]);
+  //         switch (msg.action) {
+  //           case "send-draw":
+  //             console.log('ds case send draw')
+  //             observer.next(this.handleSendDraw(msg));
+  //             break;
+  //           default:
+  //             break;
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
+
   getMessageFromWebsocket(): Observable<Room> {
     return new Observable(observer => {
       this.socket.onmessage = event => {
@@ -100,6 +124,9 @@ export class ChatService {
             case "leave-room":
               observer.next(this.handleUserLeft(msg));
               break
+            case "send-draw":
+              observer.next(this.handleSendDraw(msg));
+              break;
             // case "room-create":
             //   this.getNewGame(msg);
             //   break;
@@ -221,6 +248,19 @@ export class ChatService {
     return this.rooms;
   }
 
+  public handleSendDraw(msg: ChatMessage): Room {
+
+    if(isNullOrUndefined(this.drawInfos)) {
+      this.drawInfos = [];
+    }
+
+    if(msg.target.id === this.room.id && this.room.name !== this.localStorageService.getPseudo()) {
+      this.drawInfoChange.next(msg);
+      this.drawInfos.push(msg)
+    }
+    return msg.target;
+  }
+
   public handleRoomJoined(msg: ChatMessage): Room {
     this.initializeMessageAndClientArray();
     let room = msg.target;
@@ -255,6 +295,23 @@ export class ChatService {
       this.socket.send(JSON.stringify({
         action: 'send-message',
         message: message,
+        target: {
+          id: room.id,
+          name: room.name,
+          private: false
+        }
+      }));
+    }
+  }
+
+  sendDraw(room : Room, offsetX: string, offsetY: string, mouse: string) {
+    if (offsetX !== "" && offsetY !== "") {
+      this.socket.send(JSON.stringify({
+        action: 'send-draw',
+        message: 'envoi draw',
+        offsetX: offsetX,
+        offsetY: offsetY,
+        mouse: mouse,
         target: {
           id: room.id,
           name: room.name,

@@ -6,4 +6,5 @@ export class RoomMessage {
   action: string;
   target: Room[];
   sender: User;
+  drawerPseudo: string;
 }

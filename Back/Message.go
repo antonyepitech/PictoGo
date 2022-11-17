@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+const SendDrawAction = "send-draw"
 const SendMessageAction = "send-message"
 const JoinRoomAction = "join-room"
 const LeaveRoomAction = "leave-room"
@@ -20,6 +21,9 @@ type Message struct {
 	Message string  `json:"message"`
 	Target  *Room   `json:"target"`
 	Sender  *Client `json:"sender"`
+	OffsetX string  `json:"offsetX"`
+	OffsetY string  `json:"offsetY"`
+	Mouse string  `json:"mouse"`
 }
 
 type MessageRoom struct {
@@ -27,6 +31,9 @@ type MessageRoom struct {
 	Message string  `json:"message"`
 	Target  []*Room  `json:"target"`
 	Sender  *Client `json:"sender"`
+	OffsetX string  `json:"offsetX"`
+	OffsetY string  `json:"offsetY"`
+	Mouse string  `json:"mouse"`
 }
 
 func (message *Message) encode() []byte {
