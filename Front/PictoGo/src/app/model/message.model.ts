@@ -6,4 +6,7 @@ export class ChatMessage {
   action: string;
   target: Room;
   sender: User;
+  offsetX: string;
+  offsetY: string;
+  mouse: string;
 }

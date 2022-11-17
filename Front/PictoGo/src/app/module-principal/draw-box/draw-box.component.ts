@@ -3,11 +3,13 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
-  HostListener,
-  AfterViewInit
+  AfterViewInit, Input, OnChanges, SimpleChanges, Output, EventEmitter
 } from "@angular/core";
-import { fromEvent, combineLatest } from "rxjs";
-import { filter, tap, concatMap, mergeMap, takeUntil } from "rxjs/operators";
+import { fromEvent } from "rxjs";
+import { tap, concatMap, takeUntil } from "rxjs/operators";
+import {Room} from "../../model/room.model";
+import {ChatMessage} from "../../model/message.model";
+import {User} from "../../model/user.model";
 
 export enum Direction {
   up,
@@ -40,7 +42,22 @@ export const DistanceConfig = {
   templateUrl: "./draw-box.component.html",
   styleUrls: ["./draw-box.component.scss"]
 })
-export class DrawBoxComponent implements OnInit, AfterViewInit {
+export class DrawBoxComponent implements OnInit, OnChanges, AfterViewInit {
+
+  @Output() drawInfoSend: EventEmitter<ChatMessage> = new EventEmitter<ChatMessage>();
+
+  @Input() drawInfo: ChatMessage;
+  @Input() drawInfos: ChatMessage[];
+  @Input() actualRoom: Room;
+  @Input() drawerName: string;
+
+  private mouse: string = "";
+  private mouseUpOffsetX : number;
+  private mouseUpOffsetY : number;
+  private mouseWasUp: boolean = false;
+
+  private user: User = new User();
+
   name = "Angular";
   // @ts-ignore
   cx;
@@ -52,11 +69,54 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
 
   @ViewChild("myCanvas", { static: false }) myCanvas : ElementRef | undefined;
 
-  constructor(private el: ElementRef) {}
+  constructor(private el: ElementRef) {
+  }
 
-  ngOnInit() {}
+  ngOnInit() {
+
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if(changes["drawInfo"]) {
+
+      // @ts-ignore
+      const canvasEl: HTMLCanvasElement = this.myCanvas.nativeElement;
+      this.cx = canvasEl.getContext("2d");
+
+      // @ts-ignore
+      const mouseDown$ = fromEvent(this.myCanvas.nativeElement, "mousedown");
+      // @ts-ignore
+      const mouseMove$ = fromEvent(this.myCanvas.nativeElement, "mousemove");
+      // @ts-ignore
+      const mouseUp$ = fromEvent(this.myCanvas.nativeElement, "mouseup");
+
+
+      if(this.drawInfo.mouse === "mouseup") {
+        this.mouseWasUp = true;
+      }
+
+      if(this.drawInfo.mouse === "mousemove") {
+        if(this.mouseWasUp){
+          this.cx.moveTo(this.drawInfo.offsetX, this.drawInfo.offsetY);
+          this.mouseWasUp = false;
+        } else {
+          this.draw(Number(this.drawInfo.offsetX), Number(this.drawInfo.offsetY));
+        }
+
+      }
+
+      if(this.drawInfo.mouse === "mousedown") {
+      }
+
+    }
+  }
 
   ngAfterViewInit(): void {
+    this.drawFunction();
+  }
+
+  drawFunction() {
     // @ts-ignore
     const canvasEl: HTMLCanvasElement = this.myCanvas.nativeElement;
     this.cx = canvasEl.getContext("2d");
@@ -67,24 +127,56 @@ export class DrawBoxComponent implements OnInit, AfterViewInit {
     // @ts-ignore
     const mouseUp$ = fromEvent(this.myCanvas.nativeElement, "mouseup");
 
+    mouseUp$.pipe().subscribe({
+      next: (mouse: any) => {
+        this.mouse = mouse.type;
+        if(this.actualRoom.name === this.drawerName && (this.mouse === "mouseup") && !this.mouseWasUp) {
+          this.drawInfoSend.emit({
+            message: 'drawInfo',
+            action: 'send-draw',
+            target: this.actualRoom,
+            sender: this.user,
+            offsetX: mouse.offsetX.toString(),
+            offsetY: mouse.offsetY.toString(),
+            mouse: this.mouse,
+          });
+        }
+      }
+    })
+
     mouseDown$.pipe(concatMap(down => mouseMove$.pipe(takeUntil(mouseUp$))));
 
     const mouseDraw$ = mouseDown$.pipe(
       // @ts-ignore
       tap((e: MouseEvent) => {
+        this.mouse = e.type
         this.cx.moveTo(e.offsetX, e.offsetY);
       }),
       concatMap(() => mouseMove$.pipe(takeUntil(mouseUp$)))
     );
 // @ts-ignore
-    mouseDraw$.subscribe((e: MouseEvent) => this.draw(e.offsetX, e.offsetY));
+    mouseDraw$.subscribe((e: MouseEvent) => {
+      this.mouse = e.type;
+      this.draw(e.offsetX, e.offsetY);
+
+    });
+
   }
 
   draw(offsetX: number, offsetY: number) {
-
+    if(this.actualRoom.name === this.drawerName) {
+      this.drawInfoSend.emit({
+        message: 'drawInfo',
+        action: 'send-draw',
+        target: this.actualRoom,
+        sender: this.user,
+        offsetX: offsetX.toString(),
+        offsetY: offsetY.toString(),
+        mouse: this.mouse,
+      });
+    }
     this.cx.lineTo(offsetX, offsetY);
     this.cx.stroke();
-    console.log(this.cx);
   }
 
   refresh() {
