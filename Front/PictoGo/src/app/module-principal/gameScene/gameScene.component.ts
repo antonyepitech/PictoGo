@@ -7,6 +7,7 @@ import {LocalStorageService} from "../../service/local-storage.service";
 import {PopUpStartComponent} from "../pop-up-start/pop-up-start.component";
 import {Room} from "../../model/room.model";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Objects} from "../../dictionnary/word";
 
 
 @Component({
@@ -26,6 +27,8 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   public actualRoom: Room;
   public drawInfo: ChatMessage;
   public drawInfos: ChatMessage[] = [];
+  public guess = Objects;
+  public wordToFound :string = "";
 
   public _secondes: PopUpStartComponent;
 
@@ -39,6 +42,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   onClickPlay(){}
 
   ngOnInit() {
+    this.wordToFound = this.guess[Math.floor(Math.random() * 20)];
     this.initializeForm();
     this.messages = [];
     this.activatedRoute.params.subscribe({

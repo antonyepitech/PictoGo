@@ -2,7 +2,8 @@
 <div id="header">
   <div id="clock"></div>
   <p id="time">{{_secondes}}</p>
-  <p id="word">_ _ _ _ _</p>
+  <p *ngIf="pseudoCurrentUser === this.actualRoom.name" class="word">{{ this.wordToFound }}</p>
+  <p *ngIf="pseudoCurrentUser !== this.actualRoom.name" class="word">_ _ _ _ _</p>
 </div>
 <div id="boxGameScene">
   <div id="player">
