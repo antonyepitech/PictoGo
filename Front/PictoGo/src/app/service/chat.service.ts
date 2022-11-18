@@ -309,7 +309,7 @@ export class ChatService {
     if (message !== "") {
       this.socket.send(JSON.stringify({
         action: 'send-message',
-        message: message,
+        message: message.toLocaleUpperCase(),
         target: {
           id: room.id,
           name: room.name,
@@ -323,7 +323,7 @@ export class ChatService {
     if (message !== "") {
       this.socket.send(JSON.stringify({
         action: 'guess-word',
-        message: message,
+        message: message.toLocaleUpperCase(),
         target: {
           id: room.id,
           name: room.name,

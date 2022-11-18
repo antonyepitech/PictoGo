@@ -31,6 +31,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   public wordToFound :string = "";
   public hideWord: string = "";
   public launchStart: boolean = false;
+  public gameEnded: boolean = false;
 
   public _secondes: PopUpStartComponent;
 
@@ -75,7 +76,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     this.chatService.getMessageFromWebsocket().subscribe({
       next: (data) => {
         if(data.guessWord) {
-          this.wordToFound = data.guessWord;
+          this.wordToFound = data.guessWord.toLocaleUpperCase();
           this.generateHideWord();
         }
         //
@@ -86,7 +87,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
     this.chatService.guessWordChange.subscribe({
       next: (word) => {
-        this.wordToFound = word;
+        this.wordToFound = word.toLocaleUpperCase();
         this.launchStart = true;
         this.generateHideWord();
 
@@ -146,12 +147,12 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
   launchGame(event?: any) {
     if(this.actualRoom.name === this.localStorageService.getPseudo()) {
-      this.chatService.sendGuessWord(this.actualRoom, this.wordToFound);
+      this.chatService.sendGuessWord(this.actualRoom, this.wordToFound.toLocaleUpperCase());
     }
   }
 
   generateWord() {
-    this.wordToFound = this.guess[Math.floor(Math.random() * 20)];
+    this.wordToFound = this.guess[Math.floor(Math.random() * 20)].toLocaleUpperCase();
     this.launchGame();
   }
 
@@ -163,6 +164,10 @@ export class GameSceneComponent implements OnInit, OnDestroy {
         this.hideWord += "_ ";
       }
     }
+  }
+
+  sendEndGame(event: any) {
+    this.gameEnded = true;
   }
 
 }

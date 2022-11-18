@@ -21,6 +21,7 @@ import {isNotNullOrUndefined} from "../../util/control";
 export class PopUpStartComponent implements OnInit, OnChanges {
 
   @Output() sendlaunchGame: EventEmitter<boolean> = new EventEmitter<boolean>();
+  @Output() sendEndGame: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Input() pseudoCurrentUser: string;
   @Input() actualRoom: Room;
   @Input() launchStart: boolean = false;
@@ -49,6 +50,9 @@ export class PopUpStartComponent implements OnInit, OnChanges {
     this._timer = setInterval(() => {
       this._minutes = Math.floor(++this._totalSecondes / 60);
       this._secondes = this._totalSecondes - this._minutes * 60;
+      if(this._secondes === 60) {
+        this.sendEndGame.emit(true);
+      }
     }, 1000);
   }
   stop() {

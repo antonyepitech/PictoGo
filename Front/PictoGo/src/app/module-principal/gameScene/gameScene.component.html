@@ -53,7 +53,8 @@
 </div>
 
 <app-pop-up-start *ngIf="actualRoom.name === this.pseudoCurrentUser" (sendlaunchGame)="this.launchGame($event)"
-[actualRoom]="actualRoom" [pseudoCurrentUser]="pseudoCurrentUser" [launchStart]="this.launchStart"></app-pop-up-start>
+[actualRoom]="actualRoom" [pseudoCurrentUser]="pseudoCurrentUser" [launchStart]="this.launchStart"
+(sendEndGame)="this.sendEndGame($event)"></app-pop-up-start>
 
 
 

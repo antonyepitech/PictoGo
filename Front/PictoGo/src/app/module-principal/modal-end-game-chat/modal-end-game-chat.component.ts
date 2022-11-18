@@ -8,8 +8,9 @@ import {Router} from "@angular/router";
 })
 export class ModalEndGameChatComponent implements OnInit {
 
-  public gameNumber = 0
-  public endGame = false
+
+  public gameNumber = 0;
+  public endGame = true;
 
   constructor(private router: Router) {}
 
@@ -20,7 +21,7 @@ export class ModalEndGameChatComponent implements OnInit {
   }
 
   continueGame(){
-    this.endGame = true
+    this.endGame = false
   }
 
   leaveGame(){
