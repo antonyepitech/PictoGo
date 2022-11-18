@@ -151,8 +151,7 @@ export class ChatService {
 
   handleGuessWord(msg: ChatMessage): Room {
     if(msg.target.id === this.room.id && msg.target.name !== this.localStorageService.getPseudo()) {
-      console.log(msg.message)
-      this.guessWordChange.next(msg.message)
+      this.guessWordChange.next(msg.message);
     }
     return msg.target;
   }

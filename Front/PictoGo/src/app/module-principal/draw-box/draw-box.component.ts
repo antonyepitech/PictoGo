@@ -10,6 +10,7 @@ import { tap, concatMap, takeUntil } from "rxjs/operators";
 import {Room} from "../../model/room.model";
 import {ChatMessage} from "../../model/message.model";
 import {User} from "../../model/user.model";
+import {LocalStorageService} from "../../service/local-storage.service";
 
 export enum Direction {
   up,
@@ -69,7 +70,7 @@ export class DrawBoxComponent implements OnInit, OnChanges, AfterViewInit {
 
   @ViewChild("myCanvas", { static: false }) myCanvas : ElementRef | undefined;
 
-  constructor(private el: ElementRef) {
+  constructor(private el: ElementRef, private localStorageService: LocalStorageService) {
   }
 
   ngOnInit() {
@@ -83,14 +84,6 @@ export class DrawBoxComponent implements OnInit, OnChanges, AfterViewInit {
       // @ts-ignore
       const canvasEl: HTMLCanvasElement = this.myCanvas.nativeElement;
       this.cx = canvasEl.getContext("2d");
-
-      // @ts-ignore
-      const mouseDown$ = fromEvent(this.myCanvas.nativeElement, "mousedown");
-      // @ts-ignore
-      const mouseMove$ = fromEvent(this.myCanvas.nativeElement, "mousemove");
-      // @ts-ignore
-      const mouseUp$ = fromEvent(this.myCanvas.nativeElement, "mouseup");
-
 
       if(this.drawInfo.mouse === "mouseup") {
         this.mouseWasUp = true;
@@ -117,20 +110,22 @@ export class DrawBoxComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   drawFunction() {
+
     // @ts-ignore
     const canvasEl: HTMLCanvasElement = this.myCanvas.nativeElement;
     this.cx = canvasEl.getContext("2d");
-// @ts-ignore
+    // @ts-ignore
     const mouseDown$ = fromEvent(this.myCanvas.nativeElement, "mousedown");
     // @ts-ignore
     const mouseMove$ = fromEvent(this.myCanvas.nativeElement, "mousemove");
     // @ts-ignore
     const mouseUp$ = fromEvent(this.myCanvas.nativeElement, "mouseup");
 
+
     mouseUp$.pipe().subscribe({
       next: (mouse: any) => {
         this.mouse = mouse.type;
-        if(this.actualRoom.name === this.drawerName && (this.mouse === "mouseup") && !this.mouseWasUp) {
+        if (this.actualRoom.name === this.drawerName && (this.mouse === "mouseup") && !this.mouseWasUp) {
           this.drawInfoSend.emit({
             message: 'drawInfo',
             action: 'send-draw',
@@ -142,24 +137,25 @@ export class DrawBoxComponent implements OnInit, OnChanges, AfterViewInit {
           });
         }
       }
-    })
+      })
 
-    mouseDown$.pipe(concatMap(down => mouseMove$.pipe(takeUntil(mouseUp$))));
+      mouseDown$.pipe(concatMap(down => mouseMove$.pipe(takeUntil(mouseUp$))));
 
-    const mouseDraw$ = mouseDown$.pipe(
-      // @ts-ignore
-      tap((e: MouseEvent) => {
-        this.mouse = e.type
-        this.cx.moveTo(e.offsetX, e.offsetY);
-      }),
-      concatMap(() => mouseMove$.pipe(takeUntil(mouseUp$)))
-    );
-// @ts-ignore
-    mouseDraw$.subscribe((e: MouseEvent) => {
-      this.mouse = e.type;
-      this.draw(e.offsetX, e.offsetY);
+      const mouseDraw$ = mouseDown$.pipe(
+        // @ts-ignore
+        tap((e: MouseEvent) => {
+          this.mouse = e.type
+          this.cx.moveTo(e.offsetX, e.offsetY);
+        }),
+        concatMap(() => mouseMove$.pipe(takeUntil(mouseUp$)))
+      );
+  // @ts-ignore
+      mouseDraw$.subscribe((e: MouseEvent) => {
+        this.mouse = e.type;
+        this.draw(e.offsetX, e.offsetY);
 
-    });
+      });
+
 
   }
 

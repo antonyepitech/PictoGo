@@ -21,8 +21,11 @@
         <p class="sender" *ngIf="message.sender && message.action !== 'leave-room' && message.action !== 'user-join'">
           {{message.sender.name}}
         </p>
-        <p class="message">
+        <p *ngIf="message.message !== this.wordToFound" class="message">
           {{message.message}}
+        </p>
+        <p *ngIf="message.message === this.wordToFound" class="message good-word">
+          MOT TROUVE
         </p>
       </div>
       <div class="box-message" *ngIf="!message.sender && message && message.message.length > 0">
@@ -50,7 +53,7 @@
 </div>
 
 <app-pop-up-start *ngIf="actualRoom.name === this.pseudoCurrentUser" (sendlaunchGame)="this.launchGame($event)"
-[actualRoom]="actualRoom" [pseudoCurrentUser]="pseudoCurrentUser"></app-pop-up-start>
+[actualRoom]="actualRoom" [pseudoCurrentUser]="pseudoCurrentUser" [launchStart]="this.launchStart"></app-pop-up-start>
 
 
 

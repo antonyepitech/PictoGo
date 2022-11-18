@@ -30,6 +30,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   public guess = Objects;
   public wordToFound :string = "";
   public hideWord: string = "";
+  public launchStart: boolean = false;
 
   public _secondes: PopUpStartComponent;
 
@@ -43,7 +44,6 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   onClickPlay(){}
 
   ngOnInit() {
-    this.initializeForm();
     this.messages = [];
     this.activatedRoute.params.subscribe({
       next: (param) => {
@@ -61,7 +61,8 @@ export class GameSceneComponent implements OnInit, OnDestroy {
   }
 
   initialize() {
-    // this.generateWord();
+    this.initializeForm();
+    this.generateWord();
     this.pseudoCurrentUser = this.localStorageService.getPseudo();
     this.drawerPseudo = this.pseudoCurrentUser;
 
@@ -73,22 +74,28 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
     this.chatService.getMessageFromWebsocket().subscribe({
       next: (data) => {
-        this.wordToFound = data.guessWord;
+        if(data.guessWord) {
+          this.wordToFound = data.guessWord;
+          this.generateHideWord();
+        }
+        //
         this.actualRoom = data;
-        this.generateHideWord();
+        console.log(data)
       }
     });
 
     this.chatService.guessWordChange.subscribe({
       next: (word) => {
         this.wordToFound = word;
+        this.launchStart = true;
         this.generateHideWord();
+
       }
     })
 
     this.chatService.roomChange.subscribe({
       next: (actualRoom) => {
-        console.log("roomChange")
+        console.log(actualRoom)
         this.actualRoom = actualRoom;
         this.drawerPseudo = this.actualRoom.name;
       }
@@ -137,10 +144,7 @@ export class GameSceneComponent implements OnInit, OnDestroy {
     this.chatService.sendDraw(event.target, event.offsetX, event.offsetY, event.mouse);
   }
 
-  launchGame(event: any) {
-    console.log(event)
-    console.log(this.wordToFound)
-    this.generateWord();
+  launchGame(event?: any) {
     if(this.actualRoom.name === this.localStorageService.getPseudo()) {
       this.chatService.sendGuessWord(this.actualRoom, this.wordToFound);
     }
@@ -148,11 +152,12 @@ export class GameSceneComponent implements OnInit, OnDestroy {
 
   generateWord() {
     this.wordToFound = this.guess[Math.floor(Math.random() * 20)];
+    this.launchGame();
   }
 
   generateHideWord() {
     if(this.hideWord === "") {
-      this.wordToFound.length
+      this.wordToFound.length;
 
       for(let i=0; i < this.wordToFound.length; i++) {
         this.hideWord += "_ ";

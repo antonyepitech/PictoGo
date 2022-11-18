@@ -1,19 +1,29 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {Route, Router} from "@angular/router";
 import {Room} from "../../model/room.model";
+import {isNotNullOrUndefined} from "../../util/control";
 
 @Component({
   selector: 'app-pop-up-start',
   templateUrl: './pop-up-start.component.html',
   styleUrls: ['./pop-up-start.component.scss']
 })
-export class PopUpStartComponent implements OnInit {
+export class PopUpStartComponent implements OnInit, OnChanges {
 
   @Output() sendlaunchGame: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Input() pseudoCurrentUser: string;
   @Input() actualRoom: Room;
-
-  constructor(private router: Router) {}
+  @Input() launchStart: boolean = false;
 
   public PlayerAdmin = true //check si admin
   // si le player est admin => affiche popUp et start game, sinon pas de popUp pour les joueurs qui se connecte
@@ -24,6 +34,14 @@ export class PopUpStartComponent implements OnInit {
   public _secondes: number = 0;
   private _totalSecondes: number = 0;
   private _timer: string | number | NodeJS.Timeout | undefined;
+
+  constructor(private router: Router) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(isNotNullOrUndefined(changes["launchStart"]) && changes["launchStart"].currentValue) {
+      this.start();
+    }
+  }
 
   start() {
     this.edited = true
